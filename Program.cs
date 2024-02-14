@@ -9,6 +9,7 @@ using tsuKeysAPIProject.AdditionalServices.Exceptions;
 using tsuKeysAPIProject.AdditionalServices.TokenHelpers;
 using tsuKeysAPIProject.DBContext;
 using tsuKeysAPIProject.Services;
+using tsuKeysAPIProject.Services.IServices.IRolesService;
 using tsuKeysAPIProject.Services.IServices.IUserService;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,6 +20,7 @@ builder.Services.AddDbContext<AppDBContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddControllers();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton<TokenInteraction>();
 builder.Services.AddEndpointsApiExplorer();

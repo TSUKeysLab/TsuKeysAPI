@@ -7,6 +7,7 @@ using tsuKeysAPIProject.DBContext.Models;
 using tsuKeysAPIProject.Services;
 using tsuKeysAPIProject.Services.IServices.IUserService;
 using tsuKeysAPIProject.AdditionalServices.TokenHelpers;
+using tsuKeysAPIProject.Services.IServices.IRolesService;
 
 namespace tsuKeysAPIProject.Controllers
 {
