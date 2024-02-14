@@ -8,6 +8,7 @@ using tsuKeysAPIProject.AdditionalServices.Validators;
 using tsuKeysAPIProject.DBContext.Models.Enums;
 using tsuKeysAPIProject.AdditionalServices.HashPassword;
 using tsuKeysAPIProject.AdditionalServices.Exceptions;
+using Microsoft.EntityFrameworkCore;
 
 namespace tsuKeysAPIProject.Services
 {
@@ -81,7 +82,7 @@ namespace tsuKeysAPIProject.Services
                 BirthDate = registerRequestDTO.BirthDate,
                 Gender = registerRequestDTO.Gender,
                 Email = registerRequestDTO.Email,
-                role = Roles.User,
+                Role = Roles.User,
                 Password = HashPassword.HashingPassword(registerRequestDTO.Password),
             };
             _db.Users.Add(user);
@@ -96,6 +97,56 @@ namespace tsuKeysAPIProject.Services
 
             return registrationResponseDTO;
         }
+
+
+        public async Task<GetProfileResponseDTO> getProfile(string token)
+        {
+            string email = _tokenHelper.GetUserEmailFromToken(token);
+
+            if (!string.IsNullOrEmpty(email))
+            {
+                var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == email);
+
+                if (user != null)
+                {
+                    return new GetProfileResponseDTO
+                    {
+                        Id = user.Id,
+                        FullName = user.FullName,
+                        BirthDate = user.BirthDate,
+                        Gender = user.Gender,
+                        Role = user.Role,
+                        Email = user.Email,
+                    };
+                }
+                else
+                {
+                    throw new NotFoundException("Пользователь не найден");
+                }
+            }
+            else
+            {
+                throw new UnauthorizedException("Пользователь не авторизован");
+            }
+        }
+
+        public async Task logout(string token)
+        {
+
+            string email = _tokenHelper.GetUserEmailFromToken(token);
+
+            if (!string.IsNullOrEmpty(email))
+            {
+                await _db.BlackTokens.AddAsync(new BlackToken { Blacktoken = token });
+                await _db.SaveChangesAsync();
+            }
+            else
+            {
+                throw new UnauthorizedException("Данный пользователь не авторизован");
+            }
+
+        }
+
 
     }
 }

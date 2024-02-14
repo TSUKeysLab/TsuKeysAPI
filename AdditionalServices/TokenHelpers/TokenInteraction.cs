@@ -42,9 +42,9 @@ namespace tsuKeysAPIProject.AdditionalServices.TokenHelpers
         public string GenerateToken(User user)
         {
             var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
-            };
+        {
+            new Claim(ClaimTypes.Email, user.Email)
+        };
 
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_secretKey);

@@ -51,5 +51,39 @@ namespace tsuKeysAPIProject.Controllers
 
         }
 
+        [Authorize(Policy = "TokenNotInBlackList")]
+        [HttpGet("GetProfile")]
+
+        [ProducesResponseType(typeof(GetProfileResponseDTO), 200)]
+        [ProducesResponseType(typeof(Error), 400)]
+        [ProducesResponseType(typeof(Error), 401)]
+        [ProducesResponseType(typeof(Error), 500)]
+        public async Task<IActionResult> GetProfile()
+        {
+            string token = _tokenHelper.GetTokenFromHeader();
+            if (token == null)
+            {
+                throw new UnauthorizedException("Данный пользователь не авторизован");
+            }
+            return Ok(await _userRepo.getProfile(token));
+        }
+
+        [Authorize(Policy = "TokenNotInBlackList")]
+        [HttpGet("Logout")]
+        [ProducesResponseType(typeof(Error), 400)]
+        [ProducesResponseType(typeof(Error), 401)]
+        [ProducesResponseType(typeof(Error), 500)]
+        public async Task<IActionResult> Logout()
+        {
+            string token = _tokenHelper.GetTokenFromHeader();
+            if (string.IsNullOrEmpty(token))
+            {
+                throw new UnauthorizedException("Данный пользователь не авторизован");
+            }
+            await _userRepo.logout(token);
+            return Ok();
+
+        }
+
     }
 }

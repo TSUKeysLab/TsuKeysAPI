@@ -47,6 +47,11 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("BACKENDDEVELOPINGFORHITSBACKENDDEVELOPINGFORHITSBACKENDDEVELOPINGFORHITSBACKENDDEVELOPINGFORHITSBACKENDDEVELOPINGFORHITSBACKENDDEVELOPINGFORHITS"))
     };
 });
+builder.Services.AddAuthorization(services =>
+{
+    services.AddPolicy("TokenNotInBlackList", policy => policy.Requirements.Add(new TokenBlackListRequirment()));
+});
+builder.Services.AddSingleton<IAuthorizationHandler, TokenInBlackListHandler>();
 builder.Services.AddSwaggerGen(options =>
 {
     options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
