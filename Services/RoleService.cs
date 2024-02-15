@@ -75,7 +75,8 @@ namespace tsuKeysAPIProject.Services
             {
                 return new GetUserInformationResponseDTO
                 {
-                    FullName = userFirst.FullName,
+                    Name = userFirst.Name,
+                    Lastname = userFirst.Lastname,
                     Role = userFirst.Role
                 };
             }
