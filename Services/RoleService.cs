@@ -68,6 +68,22 @@ namespace tsuKeysAPIProject.Services
                 throw new UnauthorizedException("Данный пользователь не авторизован");
             }
         }
+        public async Task<GetUserInformationResponseDTO> getUserInformation(GetUserInformationRequestDTO getUserInformationRequestDTO)
+        {
+            var userFirst = await _db.Users.FirstOrDefaultAsync(u => u.Id == getUserInformationRequestDTO.Id);
+            if (userFirst != null)
+            {
+                return new GetUserInformationResponseDTO
+                {
+                    FullName = userFirst.FullName,
+                    Role = userFirst.Role
+                };
+            }
+            else
+            {
+                throw new NotFoundException("Пользователь не найден");
+            }
+        }
 
     }
 }

@@ -6,5 +6,6 @@ namespace tsuKeysAPIProject.Services.IServices.IRolesService
     public interface IRoleService
     {
         public Task grantRole(GrantRoleRequestDTO grantRole, string token);
+        public Task<GetUserInformationResponseDTO> getUserInformation(GetUserInformationRequestDTO userInformation);
     }
 }

@@ -40,5 +40,13 @@ namespace tsuKeysAPIProject.Controllers
             await _rolesService.grantRole(grantRoleRequestDTO,token);
             return Ok();
         }
+        [HttpGet("GetUserInformation")]
+        [ProducesResponseType(typeof(GetUserInformationResponseDTO), 200)]
+        [ProducesResponseType(typeof(Error), 400)]
+        [ProducesResponseType(typeof(Error), 500)]
+        public async Task<IActionResult> Login([FromQuery] GetUserInformationRequestDTO getUserInformationRequestDTO)
+        {
+            return Ok(await _rolesService.getUserInformation(getUserInformationRequestDTO));
+        }
     }
 }
