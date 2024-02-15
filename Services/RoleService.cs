@@ -36,14 +36,26 @@ namespace tsuKeysAPIProject.Services
 
                 if (user != null && secondUser != null)
                 {
-                    if (user.Role == Roles.Administrator || user.Role == Roles.Dean)
+                    if (user.Role == Roles.Administrator)
                     {
                         secondUser.Role = grantRole.Role;
                         await _db.SaveChangesAsync();
                     }
+                    else if (user.Role == Roles.Dean)
+                    {
+                        if(grantRole.Role == Roles.Dean || grantRole.Role == Roles.Administrator)
+                        {
+                            throw new ForbiddenException("Ваша роль не подходит для выдачи данной роли");
+                        }
+                        else
+                        {
+                            secondUser.Role = grantRole.Role;
+                            await _db.SaveChangesAsync();
+                        }
+                    }
                     else
                     {
-                        throw new ForbiddenException("Ваша роль не та, которая нужна");
+                        throw new ForbiddenException("Ваша роль не подходит для выдачи данной роли");
                     }
                 }
                 else

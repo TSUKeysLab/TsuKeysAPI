@@ -30,7 +30,7 @@ namespace tsuKeysAPIProject.Controllers
         [ProducesResponseType(typeof(Error), 400)]
         [ProducesResponseType(typeof(Error), 401)]
         [ProducesResponseType(typeof(Error), 500)]
-        public async Task<IActionResult> grantRole([FromBody] GrantRoleRequestDTO grantRoleRequestDTO)
+        public async Task<IActionResult> grantRole([FromQuery] GrantRoleRequestDTO grantRoleRequestDTO)
         {
             string token = _tokenHelper.GetTokenFromHeader();
             if (string.IsNullOrEmpty(token))
