@@ -78,7 +78,8 @@ namespace tsuKeysAPIProject.Services
             }
             User user = new User()
             {
-                FullName = registerRequestDTO.FullName,
+                Name = registerRequestDTO.Name,
+                Lastname = registerRequestDTO.Lastname,
                 BirthDate = registerRequestDTO.BirthDate,
                 Gender = registerRequestDTO.Gender,
                 Email = registerRequestDTO.Email,
@@ -112,7 +113,8 @@ namespace tsuKeysAPIProject.Services
                     return new GetProfileResponseDTO
                     {
                         Id = user.Id,
-                        FullName = user.FullName,
+                        Name = user.Name,
+                        Lastname = user.Lastname,
                         BirthDate = user.BirthDate,
                         Gender = user.Gender,
                         Role = user.Role,
