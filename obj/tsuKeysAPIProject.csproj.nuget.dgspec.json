@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Артем\\Source\\Repos\\TsuKeysAPI\\tsuKeysAPIProject.csproj": {}
+    "C:\\Users\\Артем\\source\\repos\\TsuKeysAPI\\tsuKeysAPIProject.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Артем\\Source\\Repos\\TsuKeysAPI\\tsuKeysAPIProject.csproj": {
+    "C:\\Users\\Артем\\source\\repos\\TsuKeysAPI\\tsuKeysAPIProject.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Артем\\Source\\Repos\\TsuKeysAPI\\tsuKeysAPIProject.csproj",
+        "projectUniqueName": "C:\\Users\\Артем\\source\\repos\\TsuKeysAPI\\tsuKeysAPIProject.csproj",
         "projectName": "tsuKeysAPIProject",
-        "projectPath": "C:\\Users\\Артем\\Source\\Repos\\TsuKeysAPI\\tsuKeysAPIProject.csproj",
+        "projectPath": "C:\\Users\\Артем\\source\\repos\\TsuKeysAPI\\tsuKeysAPIProject.csproj",
         "packagesPath": "C:\\Users\\Артем\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Артем\\Source\\Repos\\TsuKeysAPI\\obj\\",
+        "outputPath": "C:\\Users\\Артем\\source\\repos\\TsuKeysAPI\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Артем\\AppData\\Roaming\\NuGet\\NuGet.Config",

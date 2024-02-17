@@ -54,7 +54,6 @@ namespace tsuKeysAPIProject.Controllers
 
         [Authorize(Policy = "TokenNotInBlackList")]
         [HttpGet("GetProfile")]
-
         [ProducesResponseType(typeof(GetProfileResponseDTO), 200)]
         [ProducesResponseType(typeof(Error), 400)]
         [ProducesResponseType(typeof(Error), 401)]
@@ -85,6 +84,8 @@ namespace tsuKeysAPIProject.Controllers
             return Ok();
 
         }
+
+        //TODO сделать получение всех пользователей с параметрами (поиск по имени и фильтрация по роли)
 
     }
 }

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using tsuKeysAPIProject.DBContext;
@@ -11,9 +12,11 @@ using tsuKeysAPIProject.DBContext;
 namespace tsuKeysAPIProject.Migrations
 {
     [DbContext(typeof(AppDBContext))]
-    partial class AppDBContextModelSnapshot : ModelSnapshot
+    [Migration("20240217060728_keysRequestKeysTablesAdd")]
+    partial class keysRequestKeysTablesAdd
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -49,27 +52,6 @@ namespace tsuKeysAPIProject.Migrations
                     b.HasKey("ClassroomNumber");
 
                     b.ToTable("Keys");
-                });
-
-            modelBuilder.Entity("tsuKeysAPIProject.DBContext.Models.KeyRequest", b =>
-                {
-                    b.Property<string>("ClassroomNumber")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("EndOfBooking")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("KeyOwner")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("KeyRecipient")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("ClassroomNumber");
-
-                    b.ToTable("KeyRequest");
                 });
 
             modelBuilder.Entity("tsuKeysAPIProject.DBContext.Models.User", b =>
