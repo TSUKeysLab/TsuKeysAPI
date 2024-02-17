@@ -10,6 +10,7 @@ using tsuKeysAPIProject.AdditionalServices.Exceptions;
 using tsuKeysAPIProject.AdditionalServices.TokenHelpers;
 using tsuKeysAPIProject.DBContext;
 using tsuKeysAPIProject.Services;
+using tsuKeysAPIProject.Services.IServices.IKeyService;
 using tsuKeysAPIProject.Services.IServices.IRolesService;
 using tsuKeysAPIProject.Services.IServices.IUserService;
 
@@ -22,6 +23,7 @@ builder.Services.AddDbContext<AppDBContext>(options =>
 builder.Services.AddControllers();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
+builder.Services.AddScoped<IKeyService, KeyService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton<TokenInteraction>();
 builder.Services.AddEndpointsApiExplorer();

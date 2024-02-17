@@ -37,6 +37,41 @@ namespace tsuKeysAPIProject.Migrations
                     b.ToTable("BlackTokens");
                 });
 
+            modelBuilder.Entity("tsuKeysAPIProject.DBContext.Models.Key", b =>
+                {
+                    b.Property<string>("ClassroomNumber")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Owner")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("ClassroomNumber");
+
+                    b.ToTable("Keys");
+                });
+
+            modelBuilder.Entity("tsuKeysAPIProject.DBContext.Models.KeyRequest", b =>
+                {
+                    b.Property<string>("ClassroomNumber")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("EndOfBooking")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("KeyOwner")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("KeyRecipient")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("ClassroomNumber");
+
+                    b.ToTable("KeyRequest");
+                });
+
             modelBuilder.Entity("tsuKeysAPIProject.DBContext.Models.User", b =>
                 {
                     b.Property<Guid>("Id")

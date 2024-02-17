@@ -9,6 +9,8 @@ namespace tsuKeysAPIProject.DBContext
 
         public DbSet<User> Users { get; set; }
         public DbSet<BlackToken> BlackTokens { get; set; }
+        public DbSet<Key> Keys { get; set; }
+        public DbSet<KeyRequest> KeyRequest { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

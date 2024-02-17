@@ -1,0 +1,12 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\Controllers",
+    "\\DBContext",
+    "\\DBContext\\DTO",
+    "\\DBContext\\DTO\\KeyDTO",
+    "\\DBContext\\Models"
+  ],
+  "SelectedNode": "\\appsettings.json",
+  "PreviewInSolutionExplorer": false
+}
