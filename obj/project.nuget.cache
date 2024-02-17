@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "qUtIVHjp1jOEKDqFQauDUcdEA1NJVfoeIxv/1lUBOQyKhcW4DvfplnXb+osJruaR/T24s+0gxNeab/47MHzcLQ==",
+  "dgSpecHash": "ZxmO4mS5rozeYhGAVY82j+6RxKIl9WYcINDhAZm18QC4zEWWdqWNsXayOrYwKbEyPiPXV6fHbhqKheUpbXr9KA==",
   "success": true,
-  "projectFilePath": "C:\\Users\\Артем\\Source\\Repos\\TsuKeysAPI\\tsuKeysAPIProject.csproj",
+  "projectFilePath": "C:\\Users\\Артем\\source\\repos\\TsuKeysAPI\\tsuKeysAPIProject.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Артем\\.nuget\\packages\\bcrypt.net-next\\4.0.3\\bcrypt.net-next.4.0.3.nupkg.sha512",
     "C:\\Users\\Артем\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
