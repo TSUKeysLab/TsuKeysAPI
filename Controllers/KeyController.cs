@@ -34,7 +34,7 @@ namespace tsuKeysAPIProject.Controllers
                 throw new UnauthorizedException("Данный пользователь не авторизован");
             }
 
-            await _keyService.CreateKey(createKeyDTO);
+            await _keyService.CreateKey(createKeyDTO, token);
             return Ok();
         }
 

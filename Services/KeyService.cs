@@ -30,19 +30,35 @@ namespace tsuKeysAPIProject.Services
                 .Select(u => u.Role)
                 .FirstOrDefault();
 
+            Console.WriteLine(userRole != Roles.Administrator);
+
             if (userRole != Roles.Dean || userRole != Roles.Administrator)
             {
-                throw new ForbiddenException("Ключи могут создавать только работники деканата или администраторы");
+                var classroomNumber = _db.Keys
+                    .Where(u => u.ClassroomNumber == createKeyDTO.ClassroomNumber)
+                    .Select(u => u.ClassroomNumber)
+                    .FirstOrDefault();
+                if (classroomNumber == null)
+                {
+                    Console.WriteLine (classroomNumber);
+                    Key key = new Key()
+                    {
+                        Owner = "Dean",
+                        ClassroomNumber = createKeyDTO.ClassroomNumber,
+                    };
+
+                    await _db.Keys.AddAsync(key);
+                    await _db.SaveChangesAsync();
+                }
+                else
+                {
+                    throw new BadRequestException("Такой ключ уже существует");
+                }
             }
-
-            Key key = new Key()
+            else
             {
-                Owner = "Dean",
-                ClassroomNumber = createKeyDTO.ClassroomNumber,
-            };
-
-            await _db.Keys.AddAsync(key);
-            await _db.SaveChangesAsync();
+                throw new ForbiddenException("Ключи могут создавать только работники деканата или администраторы");   
+            }
         }
 
         public async Task AcceptKeyRequest(string classroomNumber)
