@@ -14,9 +14,8 @@ namespace tsuKeysAPIProject.DBContext.DTO.RequestDTO
 
         public RequestStatus Status { get; set; }
 
-        public string RequestOwner { get; set; }
+        public Roles ownerRole { get; set; }
 
-        public DateTime DateOfSent { get; set; }
 
         public string ClassroomNumber { get; set; }
     }

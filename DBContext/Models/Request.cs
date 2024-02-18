@@ -18,6 +18,8 @@ namespace tsuKeysAPIProject.DBContext.Models
         
         public string RequestOwner { get; set; }
 
+        public Roles ownerRole { get; set; }
+
         public Guid OwnerId { get; set; }
 
         public DateTime DateOfSent { get; set; }

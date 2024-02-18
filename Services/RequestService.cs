@@ -108,7 +108,8 @@ namespace tsuKeysAPIProject.Services
                         Status = RequestStatus.Pending,
                         Id = Guid.NewGuid(),
                         TimeId = createRequestDTO.TimeId,
-                        OwnerId = user.Id
+                        OwnerId = user.Id,
+                        ownerRole = user.Role
                     };
                     _db.Requests.Add(request);
                     await _db.SaveChangesAsync();
@@ -181,7 +182,16 @@ namespace tsuKeysAPIProject.Services
 
                     var pageDto = new GetRequestsPageDTO
                     {
-                        Requests = allRequests,
+                        Requests = allRequests.Select(u => new GetAllRequestsDTO
+                        {
+                            Id = u.Id,
+                            DateOfBooking = u.DateOfBooking,
+                            StartTime = u.StartTime,
+                            EndTime = u.EndTime,
+                            Status = u.Status,
+                            ownerRole = u.ownerRole,
+                            ClassroomNumber = u.ClassroomNumber,
+                        }),
                         Pagination = paginationDto
                     };
 
@@ -208,7 +218,6 @@ namespace tsuKeysAPIProject.Services
             {
                 var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == email);
                 var allRequests = _db.Requests.Where(aL => aL.OwnerId == user.Id).AsQueryable();
-                List<GetAllRequestsDTO> requests = new List<GetAllRequestsDTO>();
                 if (user.Role == Roles.Teacher || user.Role == Roles.Student)
                 {
                     if (statuses != null && statuses.Any())
@@ -247,7 +256,16 @@ namespace tsuKeysAPIProject.Services
 
                     var pageDto = new GetRequestsPageDTO
                     {
-                        Requests = allRequests,
+                        Requests = allRequests.Select(u => new GetAllRequestsDTO
+                        {
+                            Id = u.Id,
+                            DateOfBooking = u.DateOfBooking,
+                            StartTime = u.StartTime,
+                            EndTime = u.EndTime,
+                            Status = u.Status,
+                            ownerRole = u.ownerRole,
+                            ClassroomNumber = u.ClassroomNumber,
+                        }),
                         Pagination = paginationDto
                     };
 
