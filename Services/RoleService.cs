@@ -1,7 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
+using System.Drawing;
+using System;
 using tsuKeysAPIProject.AdditionalServices.Exceptions;
 using tsuKeysAPIProject.AdditionalServices.TokenHelpers;
 using tsuKeysAPIProject.DBContext;
+using tsuKeysAPIProject.DBContext.DTO.RequestDTO;
 using tsuKeysAPIProject.DBContext.DTO.RolesDTO;
 using tsuKeysAPIProject.DBContext.DTO.UserDTO;
 using tsuKeysAPIProject.DBContext.Models;
@@ -25,9 +29,6 @@ namespace tsuKeysAPIProject.Services
         public async Task grantRole(GrantRoleRequestDTO grantRole, string token)
         {
             string email = _tokenHelper.GetUserEmailFromToken(token);
-
-            Console.WriteLine(grantRole.Id);
-            Console.WriteLine(grantRole.Role);
 
             if (!string.IsNullOrEmpty(email))
             {
@@ -68,21 +69,79 @@ namespace tsuKeysAPIProject.Services
                 throw new UnauthorizedException("Данный пользователь не авторизован");
             }
         }
-        public async Task<GetUserInformationResponseDTO> getUserInformation(GetUserInformationRequestDTO getUserInformationRequestDTO)
+        public async Task<GetUsersPageDTO> getUsersInformation(string token, string? fullname, Roles? role, int size, int page)
         {
-            var userFirst = await _db.Users.FirstOrDefaultAsync(u => u.Id == getUserInformationRequestDTO.Id);
-            if (userFirst != null)
+            var allUsers = _db.Users.AsQueryable();
+            string email = _tokenHelper.GetUserEmailFromToken(token);
+
+            if (!string.IsNullOrEmpty(email))
             {
-                return new GetUserInformationResponseDTO
+                var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == email);
+                if (user.Role == Roles.Administrator || user.Role == Roles.Dean)
                 {
-                    Name = userFirst.Name,
-                    Lastname = userFirst.Lastname,
-                    Role = userFirst.Role
-                };
+                    if (role != null)
+                    {
+                        allUsers = allUsers.Where(aU => aU.Role == role);
+                    }
+
+                    if (!string.IsNullOrEmpty(fullname))
+                    {
+                        allUsers = allUsers.Where(aU => aU.Fullname.Contains(fullname));
+                    }
+
+                    if (page <= 0)
+                    {
+                        page = 1;
+                    }
+                    int sizeOfPage = size;
+                    var countOfPages = (int)Math.Ceiling((double)allUsers.Count() / sizeOfPage);
+                    if (page <= countOfPages)
+                    {
+                        var lowerBound = page == 1 ? 0 : (page - 1) * sizeOfPage;
+                        if (page < countOfPages)
+                        {
+                            allUsers = allUsers.Skip(lowerBound).Take(sizeOfPage);
+                        }
+                        else
+                        {
+                            allUsers = allUsers.Skip(lowerBound).Take(allUsers.Count() - lowerBound);
+                        }
+                    }
+                    else
+                    {
+                        throw new BadRequestException("Такой страницы нет");
+                    }
+
+                    var paginationDto = new PaginationDTO
+                    {
+                        Current = page,
+                        Count = countOfPages,
+                        Size = sizeOfPage
+                    };
+
+                    var pageDto = new GetUsersPageDTO
+                    {
+                        Users = allUsers.Select(u => new GetUserInformationResponseDTO
+                        {
+                            Fullname = u.Fullname,
+                            Role = u.Role,
+                            Email = u.Email
+                        }),
+                        Pagination = paginationDto
+                    };
+
+
+                    return pageDto;
+
+                }
+                else
+                {
+                    throw new ForbiddenException("Вам недоступна данная функция");
+                }
             }
             else
             {
-                throw new NotFoundException("Пользователь не найден");
+                throw new ForbiddenException("Вам недоступна данная функция");
             }
         }
 

@@ -11,7 +11,9 @@ using tsuKeysAPIProject.AdditionalServices.TokenHelpers;
 using tsuKeysAPIProject.DBContext;
 using tsuKeysAPIProject.Services;
 using tsuKeysAPIProject.Services.IServices.IKeyService;
+using tsuKeysAPIProject.Services.IServices.IRequestService;
 using tsuKeysAPIProject.Services.IServices.IRolesService;
+using tsuKeysAPIProject.Services.IServices.IScheduleService;
 using tsuKeysAPIProject.Services.IServices.IUserService;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,6 +26,8 @@ builder.Services.AddControllers();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IKeyService, KeyService>();
+builder.Services.AddScoped<IRequestService, RequestService>();
+builder.Services.AddScoped<IScheduleService, ScheduleService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton<TokenInteraction>();
 builder.Services.AddEndpointsApiExplorer();
