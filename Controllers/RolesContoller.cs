@@ -8,6 +8,7 @@ using tsuKeysAPIProject.DBContext;
 using tsuKeysAPIProject.Services.IServices.IUserService;
 using tsuKeysAPIProject.DBContext.DTO.RolesDTO;
 using tsuKeysAPIProject.Services.IServices.IRolesService;
+using tsuKeysAPIProject.DBContext.Models.Enums;
 
 namespace tsuKeysAPIProject.Controllers
 {
@@ -26,7 +27,7 @@ namespace tsuKeysAPIProject.Controllers
         }
 
         [Authorize(Policy = "TokenNotInBlackList")]
-        [HttpPost("GrantRole")]
+        [HttpPut("GrantRole")]
         [ProducesResponseType(typeof(Error), 400)]
         [ProducesResponseType(typeof(Error), 401)]
         [ProducesResponseType(typeof(Error), 500)]
@@ -44,9 +45,14 @@ namespace tsuKeysAPIProject.Controllers
         [ProducesResponseType(typeof(GetUserInformationResponseDTO), 200)]
         [ProducesResponseType(typeof(Error), 400)]
         [ProducesResponseType(typeof(Error), 500)]
-        public async Task<IActionResult> Login([FromQuery] GetUserInformationRequestDTO getUserInformationRequestDTO)
+        public async Task<IActionResult> getUserInformation([FromQuery] string? fullname, Roles? role, int size=5, int page=1)
         {
-            return Ok(await _rolesService.getUserInformation(getUserInformationRequestDTO));
+            string token = _tokenHelper.GetTokenFromHeader();
+            if (string.IsNullOrEmpty(token))
+            {
+                throw new UnauthorizedException("Данный пользователь не авторизован");
+            }
+            return Ok(await _rolesService.getUsersInformation(token,fullname,role,size,page));
         }
     }
 }
