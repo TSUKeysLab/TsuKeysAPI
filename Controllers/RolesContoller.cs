@@ -26,7 +26,7 @@ namespace tsuKeysAPIProject.Controllers
         }
 
         [Authorize(Policy = "TokenNotInBlackList")]
-        [HttpPost("GrantRole")]
+        [HttpPut("GrantRole")]
         [ProducesResponseType(typeof(Error), 400)]
         [ProducesResponseType(typeof(Error), 401)]
         [ProducesResponseType(typeof(Error), 500)]
@@ -44,7 +44,7 @@ namespace tsuKeysAPIProject.Controllers
         [ProducesResponseType(typeof(GetUserInformationResponseDTO), 200)]
         [ProducesResponseType(typeof(Error), 400)]
         [ProducesResponseType(typeof(Error), 500)]
-        public async Task<IActionResult> Login([FromQuery] GetUserInformationRequestDTO getUserInformationRequestDTO)
+        public async Task<IActionResult> getUserInformation([FromQuery] GetUserInformationRequestDTO getUserInformationRequestDTO)
         {
             return Ok(await _rolesService.getUserInformation(getUserInformationRequestDTO));
         }

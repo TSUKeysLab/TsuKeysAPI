@@ -62,5 +62,73 @@ namespace tsuKeysAPIProject.Controllers
             return Ok(result);
         }
 
+        [Authorize(Policy = "TokenNotInBlackList")]
+        [HttpGet("getAllUsersRequests")]
+        [ProducesResponseType(typeof(Error), 400)]
+        [ProducesResponseType(typeof(Error), 401)]
+        [ProducesResponseType(typeof(Error), 500)]
+        public async Task<IActionResult> getAllUsersRequests([FromQuery] List<RequestStatus> statuses, int page = 1, int size = 5)
+        {
+
+            string token = _tokenHelper.GetTokenFromHeader();
+            if (string.IsNullOrEmpty(token))
+            {
+                throw new UnauthorizedException("Данный пользователь не авторизован");
+            }
+
+            var result = await _requestService.getAllUsersRequests(statuses, token, page, size);
+            return Ok(result);
+        }
+
+        [Authorize(Policy = "TokenNotInBlackList")]
+        [HttpPut("ApproveRequest")]
+        [ProducesResponseType(typeof(Error), 400)]
+        [ProducesResponseType(typeof(Error), 401)]
+        [ProducesResponseType(typeof(Error), 500)]
+        public async Task<IActionResult> approveRequest([FromQuery] ApproveRequestDTO approveRequestDTO)
+        {
+            string token = _tokenHelper.GetTokenFromHeader();
+            if (string.IsNullOrEmpty(token))
+            {
+                throw new UnauthorizedException("Данный пользователь не авторизован");
+            }
+            await _requestService.approveRequest(approveRequestDTO, token);
+            return Ok();
+        }
+
+        [Authorize(Policy = "TokenNotInBlackList")]
+        [HttpPut("RejectRequest")]
+        [ProducesResponseType(typeof(Error), 400)]
+        [ProducesResponseType(typeof(Error), 401)]
+        [ProducesResponseType(typeof(Error), 500)]
+        public async Task<IActionResult> rejectRequest([FromQuery] RejectRequestDTO rejectRequestDTO)
+        {
+            string token = _tokenHelper.GetTokenFromHeader();
+            if (string.IsNullOrEmpty(token))
+            {
+                throw new UnauthorizedException("Данный пользователь не авторизован");
+            }
+            await _requestService.rejectRequest(rejectRequestDTO, token);
+            return Ok();
+
+        }
+
+        [Authorize(Policy = "TokenNotInBlackList")]
+        [HttpDelete("DeleteRequest")]
+        [ProducesResponseType(typeof(Error), 400)]
+        [ProducesResponseType(typeof(Error), 401)]
+        [ProducesResponseType(typeof(Error), 500)]
+        public async Task<IActionResult> deleteRequest([FromQuery] DeleteRequestDTO deleteRequestDTO)
+        {
+            string token = _tokenHelper.GetTokenFromHeader();
+            if (string.IsNullOrEmpty(token))
+            {
+                throw new UnauthorizedException("Данный пользователь не авторизован");
+            }
+            await _requestService.deleteRequest(deleteRequestDTO, token);
+            return Ok();
+
+        }
+
     }
 }
