@@ -85,6 +85,7 @@ namespace tsuKeysAPIProject.Services
                 Email = registerRequestDTO.Email,
                 Role = Roles.User,
                 Password = HashPassword.HashingPassword(registerRequestDTO.Password),
+                Fullname = registerRequestDTO.Name + " " + registerRequestDTO.Lastname
             };
             _db.Users.Add(user);
             await _db.SaveChangesAsync();
@@ -119,6 +120,7 @@ namespace tsuKeysAPIProject.Services
                         Gender = user.Gender,
                         Role = user.Role,
                         Email = user.Email,
+                        Fullname = user.Fullname
                     };
                 }
                 else
