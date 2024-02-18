@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using tsuKeysAPIProject.DBContext.Models.Enums;
 
 namespace tsuKeysAPIProject.DBContext.Models
 {
@@ -8,6 +9,6 @@ namespace tsuKeysAPIProject.DBContext.Models
         public string KeyRecipient { get; set; }
         [Key]
         public string ClassroomNumber { get; set; }
-        public DateTime EndOfBooking { get; set; }
+        public RequestStatus Status { get; set; }
     }
 }

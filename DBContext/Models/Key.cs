@@ -7,6 +7,6 @@ namespace tsuKeysAPIProject.DBContext.Models
     {
         [Key]
         public String ClassroomNumber { get; set; }
-        public String Owner { get; set; }
+        public String OwnerEmail { get; set; }
     }
 }

@@ -5,6 +5,7 @@ using tsuKeysAPIProject.AdditionalServices.TokenHelpers;
 using tsuKeysAPIProject.DBContext.DTO.KeyDTO;
 using tsuKeysAPIProject.DBContext.DTO.UserDTO;
 using tsuKeysAPIProject.DBContext.Models;
+using tsuKeysAPIProject.DBContext.Models.Enums;
 using tsuKeysAPIProject.Services.IServices.IKeyService;
 
 namespace tsuKeysAPIProject.Controllers
@@ -25,6 +26,8 @@ namespace tsuKeysAPIProject.Controllers
         [Authorize(Policy = "TokenNotInBlackList")]
         [ProducesResponseType(200)]
         [ProducesResponseType(typeof(Error), 400)]
+        [ProducesResponseType(typeof(Error), 401)]
+        [ProducesResponseType(typeof(Error), 403)]
         [ProducesResponseType(typeof(Error), 500)]
         public async Task<IActionResult> CreateKey([FromBody] CreateKeyDTO createKeyDTO)
         {
@@ -42,10 +45,18 @@ namespace tsuKeysAPIProject.Controllers
         [Authorize(Policy = "TokenNotInBlackList")]
         [ProducesResponseType(200)]
         [ProducesResponseType(typeof(Error), 400)]
+        [ProducesResponseType(typeof(Error), 401)]
+        [ProducesResponseType(typeof(Error), 403)]
         [ProducesResponseType(typeof(Error), 500)]
         public async Task<IActionResult> DeleteKey(string classroom)
         {
-            await _keyService.DeleteKey(classroom);
+            string token = _tokenHelper.GetTokenFromHeader();
+            if (token == null)
+            {
+                throw new UnauthorizedException("Данный пользователь не авторизован");
+            }
+
+            await _keyService.DeleteKey(classroom, token);
             return Ok();
         }
 
@@ -53,10 +64,19 @@ namespace tsuKeysAPIProject.Controllers
         [Authorize(Policy = "TokenNotInBlackList")]
         [ProducesResponseType(200)]
         [ProducesResponseType(typeof(Error), 400)]
+        [ProducesResponseType(typeof(Error), 401)]
+        [ProducesResponseType(typeof(Error), 403)]
         [ProducesResponseType(typeof(Error), 500)]
-        public async Task<IActionResult> SendKeyRequest(KeyRequestDTO keyRequestDTO)
+        public async Task<IActionResult> SendKeyRequest([FromBody] KeyRequestDTO keyRequestDTO)
         {
-            await _keyService.SendKeyRequest(keyRequestDTO);
+            string token = _tokenHelper.GetTokenFromHeader();
+
+            if (token == null)
+            {
+                throw new UnauthorizedException("Данный пользователь не авторизован");
+            }
+
+            await _keyService.SendKeyRequest(keyRequestDTO, token);
             return Ok();
         }
 
@@ -64,20 +84,36 @@ namespace tsuKeysAPIProject.Controllers
         [Authorize(Policy = "TokenNotInBlackList")]
         [ProducesResponseType(200)]
         [ProducesResponseType(typeof(Error), 400)]
+        [ProducesResponseType(typeof(Error), 401)]
+        [ProducesResponseType(typeof(Error), 403)]
         [ProducesResponseType(typeof(Error), 500)]
         public async Task<IActionResult> AcceptKeyRequest(string classroom)
         {
-            await _keyService.AcceptKeyRequest(classroom);
+            string token = _tokenHelper.GetTokenFromHeader();
+            if (token == null)
+            {
+                throw new UnauthorizedException("Данный пользователь не авторизован");
+            }
+
+            await _keyService.UpdateKeyRequestStatus(classroom, token, RequestStatus.Approved);
             return Ok();
         }
         [HttpPost("decline/{classroom}")]
         [Authorize(Policy = "TokenNotInBlackList")]
         [ProducesResponseType(200)]
         [ProducesResponseType(typeof(Error), 400)]
+        [ProducesResponseType(typeof(Error), 401)]
+        [ProducesResponseType(typeof(Error), 403)]
         [ProducesResponseType(typeof(Error), 500)]
         public async Task<IActionResult> DeclineKeyRequest(string classroom)
         {
-            await _keyService.DeclineKeyRequest(classroom);
+            string token = _tokenHelper.GetTokenFromHeader();
+            if (token == null)
+            {
+                throw new UnauthorizedException("Данный пользователь не авторизован");
+            }
+
+            await _keyService.UpdateKeyRequestStatus(classroom, token, RequestStatus.Rejected);
             return Ok();
         }
 
@@ -85,6 +121,7 @@ namespace tsuKeysAPIProject.Controllers
         [Authorize(Policy = "TokenNotInBlackList")]
         [ProducesResponseType(typeof(AllKeysDTO), 200)]
         [ProducesResponseType(typeof(Error), 400)]
+        [ProducesResponseType(typeof(Error), 401)]
         [ProducesResponseType(typeof(Error), 500)]
         public async Task<IActionResult> GetAllKeys()
         {
@@ -96,6 +133,7 @@ namespace tsuKeysAPIProject.Controllers
         [Authorize(Policy = "TokenNotInBlackList")]
         [ProducesResponseType(typeof(AllKeysDTO), 200)]
         [ProducesResponseType(typeof(Error), 400)]
+        [ProducesResponseType(typeof(Error), 401)]
         [ProducesResponseType(typeof(Error), 500)]
         public async Task<IActionResult> GetAllRequests()
         {
@@ -107,6 +145,8 @@ namespace tsuKeysAPIProject.Controllers
         [Authorize(Policy = "TokenNotInBlackList")]
         [ProducesResponseType(typeof(AllKeysDTO), 200)]
         [ProducesResponseType(typeof(Error), 400)]
+        [ProducesResponseType(typeof(Error), 401)]
+        [ProducesResponseType(typeof(Error), 403)]
         [ProducesResponseType(typeof(Error), 500)]
         public async Task<IActionResult> ConfirmGetting(string classroom)
         {
