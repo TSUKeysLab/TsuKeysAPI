@@ -200,7 +200,7 @@ namespace tsuKeysAPIProject.Services
             }
         }
 
-        public async Task<GetRequestsPageDTO> getAllUsersRequests(List<RequestStatus> statuses, string token, int page, int size)
+        public async Task<GetRequestsPageDTO> getAllUsersRequests(List<RequestStatus> statuses, string token, int page)
         {
             string email = _tokenHelper.GetUserEmailFromToken(token);
 
@@ -220,7 +220,7 @@ namespace tsuKeysAPIProject.Services
                         page = 1;
                     }
 
-                    int sizeOfPage = size;
+                    int sizeOfPage = 5;
                     var countOfPages = (int)Math.Ceiling((double)allRequests.Count() / sizeOfPage);
                     if (page <= countOfPages)
                     {

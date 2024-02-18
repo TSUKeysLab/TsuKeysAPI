@@ -67,7 +67,7 @@ namespace tsuKeysAPIProject.Controllers
         [ProducesResponseType(typeof(Error), 400)]
         [ProducesResponseType(typeof(Error), 401)]
         [ProducesResponseType(typeof(Error), 500)]
-        public async Task<IActionResult> getAllUsersRequests([FromQuery] List<RequestStatus> statuses, int page = 1, int size = 5)
+        public async Task<IActionResult> getAllUsersRequests([FromQuery] List<RequestStatus> statuses, int page = 1)
         {
 
             string token = _tokenHelper.GetTokenFromHeader();
@@ -76,7 +76,7 @@ namespace tsuKeysAPIProject.Controllers
                 throw new UnauthorizedException("Данный пользователь не авторизован");
             }
 
-            var result = await _requestService.getAllUsersRequests(statuses, token, page, size);
+            var result = await _requestService.getAllUsersRequests(statuses, token, page);
             return Ok(result);
         }
 
