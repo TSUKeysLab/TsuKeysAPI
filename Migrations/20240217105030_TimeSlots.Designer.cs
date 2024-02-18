@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using tsuKeysAPIProject.DBContext;
@@ -11,9 +12,11 @@ using tsuKeysAPIProject.DBContext;
 namespace tsuKeysAPIProject.Migrations
 {
     [DbContext(typeof(AppDBContext))]
-    partial class AppDBContextModelSnapshot : ModelSnapshot
+    [Migration("20240217105030_TimeSlots")]
+    partial class TimeSlots
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -70,43 +73,6 @@ namespace tsuKeysAPIProject.Migrations
                     b.HasKey("ClassroomNumber");
 
                     b.ToTable("KeyRequest");
-                });
-
-            modelBuilder.Entity("tsuKeysAPIProject.DBContext.Models.Request", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("ClassroomNumber")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateOnly>("DateOfBooking")
-                        .HasColumnType("date");
-
-                    b.Property<DateTime>("DateOfSent")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<TimeOnly>("EndTime")
-                        .HasColumnType("time without time zone");
-
-                    b.Property<string>("RequestOwner")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<TimeOnly>("StartTime")
-                        .HasColumnType("time without time zone");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid>("TimeId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Requests");
                 });
 
             modelBuilder.Entity("tsuKeysAPIProject.DBContext.Models.TimeSlot", b =>

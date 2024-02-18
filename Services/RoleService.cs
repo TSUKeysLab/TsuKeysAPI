@@ -26,9 +26,6 @@ namespace tsuKeysAPIProject.Services
         {
             string email = _tokenHelper.GetUserEmailFromToken(token);
 
-            Console.WriteLine(grantRole.Id);
-            Console.WriteLine(grantRole.Role);
-
             if (!string.IsNullOrEmpty(email))
             {
                 var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == email);
