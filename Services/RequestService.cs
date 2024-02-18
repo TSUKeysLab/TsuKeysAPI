@@ -190,7 +190,6 @@ namespace tsuKeysAPIProject.Services
                             EndTime = u.EndTime,
                             Status = u.Status,
                             ownerRole = u.ownerRole,
-                            DateOfSent = u.DateOfSent,
                             ClassroomNumber = u.ClassroomNumber,
                         }),
                         Pagination = paginationDto
@@ -265,7 +264,6 @@ namespace tsuKeysAPIProject.Services
                             EndTime = u.EndTime,
                             Status = u.Status,
                             ownerRole = u.ownerRole,
-                            DateOfSent = u.DateOfSent,
                             ClassroomNumber = u.ClassroomNumber,
                         }),
                         Pagination = paginationDto
