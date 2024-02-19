@@ -1,6 +1,8 @@
 ﻿
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using System.Security.Cryptography.Xml;
 using tsuKeysAPIProject.AdditionalServices.Exceptions;
 using tsuKeysAPIProject.AdditionalServices.TokenHelpers;
 using tsuKeysAPIProject.AdditionalServices.UserInfoHelper;
@@ -46,7 +48,7 @@ namespace tsuKeysAPIProject.Services
                     Console.WriteLine(classroomNumber);
                     Key key = new Key()
                     {
-                        OwnerEmail = "Dean",
+                        Owner = "Dean",
                         ClassroomNumber = createKeyDTO.ClassroomNumber,
                     };
 
@@ -103,9 +105,59 @@ namespace tsuKeysAPIProject.Services
 
         }
 
-        public async Task GetAllKeys()
+        public async Task<List<KeyInfoDTO>> GetAllKeys(RequestForAllKeysDTO requestDto, string token)
         {
-            throw new NotImplementedException();
+            var userEmail = _tokenHelper.GetUserEmailFromToken(token);
+            var userRole = await _userInfoHelper.GetUserRole(userEmail);
+            
+            if (userRole != Roles.User)
+            {
+                var allKeys = _db.Keys.ToList();
+
+                var keysForRequest = new List<KeyInfoDTO>();
+
+                var availableClassrooms = await _db.Requests
+                    .Where(u => u.StartTime == requestDto.StartTimeOfClass && u.Status == RequestStatus.Approved)
+                    .Select(u => u.ClassroomNumber)
+                    .ToListAsync();
+
+                allKeys = allKeys.OrderBy(u => u.ClassroomNumber).ToList();
+
+                if (userRole == Roles.Student || userRole == Roles.Teacher)
+                {
+                    foreach (var key in allKeys)
+                    {
+                        if (!availableClassrooms.Contains(key.ClassroomNumber))
+                        {
+                            var keyInfoDTO = new KeyInfoDTO
+                            {
+                                ClassroomNumber = key.ClassroomNumber,         
+                            };
+                            keysForRequest.Add(keyInfoDTO);
+                        }
+                    }
+                    return keysForRequest;
+                }
+                else if (userRole == Roles.Dean || userRole == Roles.Administrator)
+                {
+                    foreach (var key in allKeys)
+                    {
+                        var keyInfo = new KeyInfoDTO
+                        {
+                            ClassroomNumber = key.ClassroomNumber,
+                            Owner = key.Owner
+                        };
+                        keysForRequest.Add(keyInfo);
+                    }
+
+                    return keysForRequest;
+                }
+                throw new ForbiddenException("Роль пользователя не подходит");
+            }
+            else
+            {
+                throw new ForbiddenException("для отображения ключей нужна роль выше User");
+            }
         }
 
         public async Task SendKeyRequest(KeyRequestsDTO keyRequestDTO, string token)
@@ -120,8 +172,8 @@ namespace tsuKeysAPIProject.Services
                 && recepientRole == Roles.Teacher || recepientRole == Roles.Student)
             {      
                 var keyOwner = _db.Keys
-                    .Where(u => u.OwnerEmail == ownerEmail)
-                    .Select(u => u.OwnerEmail)
+                    .Where(u => u.Owner == ownerEmail)
+                    .Select(u => u.Owner)
                     .FirstOrDefault();
 
                 if (keyOwner == ownerEmail)
@@ -218,15 +270,15 @@ namespace tsuKeysAPIProject.Services
             {
                 if (userRole != Roles.User && userRole != Roles.Administrator)
                 {
-                    if (key.OwnerEmail != userEmail)
+                    if (key.Owner != userEmail)
                     {
                         if (userRole == Roles.Dean)
                         {
-                            key.OwnerEmail = "Dean";
+                            key.Owner = "Dean";
                         }
                         else
                         {
-                            key.OwnerEmail = userEmail;
+                            key.Owner = userEmail;
                         }
                         await _db.SaveChangesAsync();
                     }

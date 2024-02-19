@@ -70,10 +70,17 @@ namespace tsuKeysAPIProject.Controllers
         [ProducesResponseType(typeof(Error), 400)]
         [ProducesResponseType(typeof(Error), 401)]
         [ProducesResponseType(typeof(Error), 500)]
-        public async Task<IActionResult> GetAllKeys()
+        public async Task<IActionResult> GetAllKeys([FromBody]RequestForAllKeysDTO requestDto)
         {
-            await _keyService.GetAllKeys();
-            return Ok();
+            string token = _tokenHelper.GetTokenFromHeader();
+
+            if (token == null)
+            {
+                throw new UnauthorizedException("Данный пользователь не авторизован");
+            }
+
+            var allKeys = await _keyService.GetAllKeys(requestDto, token);
+            return Ok(allKeys);
         }
 
         [HttpGet("requests")]
@@ -140,7 +147,13 @@ namespace tsuKeysAPIProject.Controllers
         [ProducesResponseType(typeof(Error), 500)]
         public async Task<IActionResult> ConfirmGetting(string classroom)
         {
-            await _keyService.GetAllKeys();
+            string token = _tokenHelper.GetTokenFromHeader();
+            if (token == null)
+            {
+                throw new UnauthorizedException("Данный пользователь не авторизован");
+            }
+
+            await _keyService.ConfirmReceipt(classroom, token);
             return Ok();
         }
 
@@ -162,5 +175,7 @@ namespace tsuKeysAPIProject.Controllers
             await _keyService.DeleteKey(classroom, token);
             return Ok();
         }
+
+        //TODO Выводить типов без ключей
     }
 }
