@@ -1,11 +1,12 @@
 {
   "ExpandedNodes": [
     "",
-    "\\Controllers",
     "\\DBContext",
     "\\DBContext\\DTO",
     "\\DBContext\\DTO\\KeyDTO",
-    "\\DBContext\\Models"
+    "\\DBContext\\Models",
+    "\\DBContext\\Models\\Enums",
+    "\\Services"
   ],
   "SelectedNode": "\\tsuKeysAPIProject.sln",
   "PreviewInSolutionExplorer": false

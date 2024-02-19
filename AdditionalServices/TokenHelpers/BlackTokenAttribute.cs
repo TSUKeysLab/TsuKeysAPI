@@ -43,7 +43,6 @@ namespace tsuKeysAPIProject.AdditionalServices.TokenHelpers
                     context.Fail();
                 }
             }
-
             return Task.CompletedTask;
         }
     }

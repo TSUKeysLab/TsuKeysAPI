@@ -70,7 +70,7 @@ namespace tsuKeysAPIProject.Services
 
             var request = await _db.KeyRequest.FirstOrDefaultAsync(u => u.KeyRecipient == userEmail && u.Status == RequestStatus.Pending);
 
-            if (request != null)
+            if (request != null && request.Status == RequestStatus.Pending)
             {
                 request.Status = status;
                 await _db.SaveChangesAsync();
@@ -79,7 +79,28 @@ namespace tsuKeysAPIProject.Services
 
         public async Task DeleteKey(string classroom, string token)
         {
-            throw new NotImplementedException();
+            var userEmail = _tokenHelper.GetUserEmailFromToken(token);
+            var userRole = await _userInfoHelper.GetUserRole(userEmail);
+
+            if (userRole == Roles.Administrator || userRole == Roles.Dean) 
+            {
+                var key = await _db.Keys.FirstOrDefaultAsync(u => u.ClassroomNumber == classroom);
+
+                if (key != null)
+                {
+                    _db.Keys.Remove(key);
+                    await _db.SaveChangesAsync();
+                }
+                else
+                {
+                    throw new BadRequestException("Данного ключа не существует");
+                }
+            }
+            else
+            {
+                throw new ForbiddenException("Удалять ключи могут только работники деканата или администрация");
+            }
+
         }
 
         public async Task GetAllKeys()
@@ -87,7 +108,7 @@ namespace tsuKeysAPIProject.Services
             throw new NotImplementedException();
         }
 
-        public async Task SendKeyRequest(KeyRequestDTO keyRequestDTO, string token)
+        public async Task SendKeyRequest(KeyRequestsDTO keyRequestDTO, string token)
         {
             var ownerEmail = _tokenHelper.GetUserEmailFromToken(token);
 
@@ -136,15 +157,93 @@ namespace tsuKeysAPIProject.Services
             }    
         }
 
-        public Task GetAllRequests()
+        public async Task<List<KeyRequestResponseDTO>> GetAllRequests(RequestUserStatus userStatus, string token)
         {
-            throw new NotImplementedException();
+            var userEmail = _tokenHelper.GetUserEmailFromToken(token);
+            var userRole = await _userInfoHelper.GetUserRole(userEmail);
+
+            if (userRole != Roles.Teacher && userRole != Roles.Student)
+            {
+                throw new ForbiddenException("У вас нет прав для передачи ключа");
+            }
+
+            List<KeyRequest> userRequests;
+            if (userStatus == RequestUserStatus.Owner)
+            {
+                userRequests = await _db.KeyRequest.Where(u => u.KeyOwner == userEmail).ToListAsync();
+            }
+            else if (userStatus == RequestUserStatus.Recipient)
+            {
+                userRequests = await _db.KeyRequest.Where(u => u.KeyRecipient == userEmail).ToListAsync();
+            }
+            else
+            {
+                throw new ForbiddenException("Вы не имеете отношения к данной заявке");
+            }
+
+            var requestsDto = new List<KeyRequestResponseDTO>();
+            foreach (var request in userRequests)
+            {
+                var requestDto = new KeyRequestResponseDTO
+                {
+                    ClassroomNumber = request.ClassroomNumber,
+                    KeyRecipientEmail = request.KeyRecipient,
+                    KeyOwnerEmail = request.KeyOwner
+                };
+
+                if (userStatus == RequestUserStatus.Owner)
+                {
+                    var keyRecipient = await _db.Users.FirstOrDefaultAsync(u => u.Email == request.KeyRecipient);
+                    requestDto.KeyRecipientFullName = keyRecipient?.Fullname;
+                }
+                else if (userStatus == RequestUserStatus.Recipient)
+                {
+                    var keyOwner = await _db.Users.FirstOrDefaultAsync(u => u.Email == request.KeyOwner);
+                    requestDto.KeyOwnerFullName = keyOwner?.Fullname;
+                }
+
+                requestsDto.Add(requestDto);
+            }
+
+            return requestsDto;
         }
 
-        public Task ConfirmReceipt(string classroomNumber, string token)
+        public async Task ConfirmReceipt(string classroomNumber, string token)
         {
-            throw new NotImplementedException();
+            var userEmail = _tokenHelper.GetUserEmailFromToken(token);
+            var userRole =  await _userInfoHelper.GetUserRole(userEmail);
+
+            var key = await _db.Keys.FirstOrDefaultAsync(u => u.ClassroomNumber == classroomNumber);
+            if (key != null)
+            {
+                if (userRole != Roles.User && userRole != Roles.Administrator)
+                {
+                    if (key.OwnerEmail != userEmail)
+                    {
+                        if (userRole == Roles.Dean)
+                        {
+                            key.OwnerEmail = "Dean";
+                        }
+                        else
+                        {
+                            key.OwnerEmail = userEmail;
+                        }
+                        await _db.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        throw new BadRequestException("Ключ уже у этого пользователя");
+                    }
+                }
+                else
+                {
+                    throw new ForbiddenException("Ключ может получить только пользователь с ролью: Student, Dean, Teacher");
+                }
+            }
+            else
+            {
+                throw new BadRequestException("Такого ключе не существует");
+            }
         }
     }
 }
-//TODO Owner неправильно выводится, надо бы исправить

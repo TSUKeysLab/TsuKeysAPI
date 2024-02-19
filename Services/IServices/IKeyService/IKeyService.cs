@@ -7,12 +7,12 @@ namespace tsuKeysAPIProject.Services.IServices.IKeyService
     {
         public Task CreateKey(CreateKeyDTO createKeyDTO, string token);
         public Task DeleteKey(string classroom, string token);
-        public Task SendKeyRequest(KeyRequestDTO keyRequestDTO, string token);
+        public Task SendKeyRequest(KeyRequestsDTO keyRequestDTO, string token);
         public Task UpdateKeyRequestStatus(string classroomNumber, string token, RequestStatus status);
 
         public Task GetAllKeys();
 
-        public Task GetAllRequests();
+        public Task<List<KeyRequestResponseDTO>> GetAllRequests(RequestUserStatus userStatus, string token);
         public Task ConfirmReceipt(string classroomNumber, string token);
 
         //TODO Сделать выдачу всех входящих заявок для конкретного пользователя
