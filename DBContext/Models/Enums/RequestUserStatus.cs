@@ -2,10 +2,9 @@
 {
     using System.Text.Json.Serialization;
     [JsonConverter(typeof(JsonStringEnumConverter))]
-    public enum RequestStatus
+    public enum RequestUserStatus
     {
-        Pending,
-        Approved,
-        Rejected,
+        Owner,
+        Recipient,
     }
 }
