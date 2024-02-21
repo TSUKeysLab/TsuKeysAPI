@@ -45,7 +45,6 @@ namespace tsuKeysAPIProject.Services
 
                 if (classroomNumber == null)
                 {
-                    Console.WriteLine(classroomNumber);
                     Key key = new Key()
                     {
                         Owner = "Dean",
@@ -116,7 +115,7 @@ namespace tsuKeysAPIProject.Services
 
                 var keysForRequest = new List<KeyInfoDTO>();
 
-                var availableClassrooms = await _db.Requests
+                var notAvailableClassrooms = await _db.Requests
                     .Where(u => u.StartTime == requestDto.StartTimeOfClass && u.Status == RequestStatus.Approved)
                     .Select(u => u.ClassroomNumber)
                     .ToListAsync();
@@ -127,7 +126,7 @@ namespace tsuKeysAPIProject.Services
                 {
                     foreach (var key in allKeys)
                     {
-                        if (!availableClassrooms.Contains(key.ClassroomNumber))
+                        if (!notAvailableClassrooms.Contains(key.ClassroomNumber))
                         {
                             var keyInfoDTO = new KeyInfoDTO
                             {
@@ -295,6 +294,41 @@ namespace tsuKeysAPIProject.Services
             else
             {
                 throw new BadRequestException("Такого ключе не существует");
+            }
+        }
+
+        public async Task<List<UsersWithoutKeysDTO>> GetUsersWithoutKeys(string token)
+        {
+            var userEmail = _tokenHelper.GetUserEmailFromToken(token);
+            var userRole = await _userInfoHelper.GetUserRole(userEmail);
+
+            if (userRole != Roles.User)
+            {
+
+                var allUsers = await _db.Users.ToListAsync();
+                var allKeysUsers = await _db.Keys
+                    .Select(u => u.Owner)
+                    .ToListAsync();
+                var allUsersWithoutKeys = new List<UsersWithoutKeysDTO>();
+                foreach (var user in allUsers)
+                {
+                    if (!allKeysUsers.Contains(user.Email))
+                    {
+                        var userWithoutKey = new UsersWithoutKeysDTO();
+
+                        userWithoutKey.UserEmail = user.Email;
+                        userWithoutKey.UserFullName = user.Fullname;
+                        userWithoutKey.UserRole = user.Role;
+                        userWithoutKey.Gender = user.Gender;
+
+                        allUsersWithoutKeys.Add(userWithoutKey);
+                    }
+                }
+                return allUsersWithoutKeys;
+            }
+            else
+            {
+                throw new ForbiddenException("Роль пользователя не подходит для этого");
             }
         }
     }

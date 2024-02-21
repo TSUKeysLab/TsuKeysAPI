@@ -42,6 +42,7 @@ namespace tsuKeysAPIProject.Controllers
             return Ok();
         }
 
+
         
 
         [HttpPost("request")]
@@ -66,7 +67,7 @@ namespace tsuKeysAPIProject.Controllers
 
         [HttpGet("")]
         [Authorize(Policy = "TokenNotInBlackList")]
-        [ProducesResponseType(typeof(AllKeysDTO), 200)]
+        [ProducesResponseType(typeof(List<KeyInfoDTO>), 200)]
         [ProducesResponseType(typeof(Error), 400)]
         [ProducesResponseType(typeof(Error), 401)]
         [ProducesResponseType(typeof(Error), 500)]
@@ -83,9 +84,28 @@ namespace tsuKeysAPIProject.Controllers
             return Ok(allKeys);
         }
 
+        [HttpGet("users")]
+        [Authorize(Policy = "TokenNotInBlackList")]
+        [ProducesResponseType(typeof(List<UsersWithoutKeysDTO>), 200)]
+        [ProducesResponseType(typeof(Error), 400)]
+        [ProducesResponseType(typeof(Error), 401)]
+        [ProducesResponseType(typeof(Error), 403)]
+        [ProducesResponseType(typeof(Error), 500)]
+        public async Task<IActionResult> GetUsersWithoutKeys(string classroom)
+        {
+            string token = _tokenHelper.GetTokenFromHeader();
+            if (token == null)
+            {
+                throw new UnauthorizedException("Данный пользователь не авторизован");
+            }
+
+            var usersWithoutKeys = await _keyService.GetUsersWithoutKeys(token);
+            return Ok(usersWithoutKeys);
+        }
+
         [HttpGet("requests")]
         [Authorize(Policy = "TokenNotInBlackList")]
-        [ProducesResponseType(200)]
+        [ProducesResponseType(typeof(List<KeyRequestResponseDTO>), 200)]
         [ProducesResponseType(typeof(Error), 400)]
         [ProducesResponseType(typeof(Error), 401)]
         [ProducesResponseType(typeof(Error), 500)]
@@ -176,6 +196,5 @@ namespace tsuKeysAPIProject.Controllers
             return Ok();
         }
 
-        //TODO Выводить типов без ключей
     }
 }

@@ -7,6 +7,5 @@ namespace tsuKeysAPIProject.DBContext.DTO.KeyDTO
         public string KeyOwner { get; set; }
         public string KeyRecipient { get; set; }
         public string ClassroomNumber { get; set; }
-        public RequestStatus Status { get; set; }
     }
 }
