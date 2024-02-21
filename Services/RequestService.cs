@@ -10,6 +10,7 @@ using tsuKeysAPIProject.DBContext.DTO.RequestDTO;
 using tsuKeysAPIProject.DBContext.DTO.RolesDTO;
 using tsuKeysAPIProject.DBContext.Models;
 using tsuKeysAPIProject.DBContext.Models.Enums;
+using tsuKeysAPIProject.Migrations;
 using tsuKeysAPIProject.Services.IServices.IRequestService;
 
 namespace tsuKeysAPIProject.Services
@@ -94,6 +95,9 @@ namespace tsuKeysAPIProject.Services
                 }
                 else if (requestsTeacher.Count > 0 && (user.Role == Roles.Teacher || user.Role == Roles.DeanTeacher))
                 {
+                    var allRequests = await _db.Requests.Where(aR => aR.ClassroomNumber.Contains(createRequestDTO.ClassroomNumber) && aR.TimeId == createRequestDTO.TimeId && aR.DateOfBooking == createRequestDTO.DateOfBooking).ToListAsync();
+                    allRequests.ForEach(req => req.Status = RequestStatus.Rejected);
+
                     Request requestTeacher = new Request()
                     {
                         ClassroomNumber = createRequestDTO.ClassroomNumber,
