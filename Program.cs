@@ -8,6 +8,7 @@ using System;
 using System.Text;
 using tsuKeysAPIProject.AdditionalServices.Exceptions;
 using tsuKeysAPIProject.AdditionalServices.TokenHelpers;
+using tsuKeysAPIProject.AdditionalServices.UserInfoHelper;
 using tsuKeysAPIProject.DBContext;
 using tsuKeysAPIProject.Services;
 using tsuKeysAPIProject.Services.IServices.IKeyService;
@@ -30,6 +31,7 @@ builder.Services.AddScoped<IRequestService, RequestService>();
 builder.Services.AddScoped<IScheduleService, ScheduleService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton<TokenInteraction>();
+builder.Services.AddScoped<UserInfoHelper>();
 builder.Services.AddEndpointsApiExplorer();
 
 

@@ -7,7 +7,5 @@ namespace tsuKeysAPIProject.DBContext.DTO.RequestDTO
         public string ClassroomNumber { get; set; }
         public Guid TimeId { get; set; }
         public DateOnly DateOfBooking { get; set; }
-
-
     }
 }
