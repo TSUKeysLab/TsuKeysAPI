@@ -42,9 +42,13 @@ namespace tsuKeysAPIProject.Services
                         secondUser.Role = grantRole.Role;
                         await _db.SaveChangesAsync();
                     }
-                    else if (user.Role == Roles.Dean)
+                    else if (user.Role == Roles.Dean || user.Role == Roles.DeanTeacher)
                     {
-                        if(grantRole.Role == Roles.Dean || grantRole.Role == Roles.Administrator)
+                        if(secondUser.Role == Roles.Administrator || secondUser.Role == Roles.Dean)
+                        {
+                            throw new ForbiddenException("Вы не можете выдать роль данному пользователю");
+                        }
+                        if(grantRole.Role == Roles.Dean || grantRole.Role == Roles.Administrator || grantRole.Role == Roles.DeanTeacher)
                         {
                             throw new ForbiddenException("Ваша роль не подходит для выдачи данной роли");
                         }
@@ -77,7 +81,7 @@ namespace tsuKeysAPIProject.Services
             if (!string.IsNullOrEmpty(email))
             {
                 var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == email);
-                if (user.Role == Roles.Administrator || user.Role == Roles.Dean)
+                if (user.Role == Roles.Administrator || user.Role == Roles.Dean || user.Role == Roles.DeanTeacher)
                 {
                     if (role != null)
                     {

@@ -7,6 +7,7 @@
         User,
         Administrator,
         Teacher,
+        DeanTeacher,
         Student,
         Dean
     }

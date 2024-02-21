@@ -39,6 +39,9 @@ namespace tsuKeysAPIProject.Services
                 }
                 var requestTime = await _db.TimeSlots.FirstOrDefaultAsync(rt => rt.Id == createRequestDTO.TimeId);
                 var key = await _db.Keys.FirstOrDefaultAsync(k => k.ClassroomNumber == createRequestDTO.ClassroomNumber);
+                DateTime utcNow = DateTime.UtcNow;
+                TimeOnly currentTime = new TimeOnly(utcNow.Hour, utcNow.Minute, utcNow.Second);
+                DateOnly currentDay = new DateOnly(utcNow.Year,utcNow.Month, utcNow.Day);
                 if (requestTime == null)
                 {
                     throw new NotFoundException("Выбранное вами время не существует");
@@ -46,13 +49,25 @@ namespace tsuKeysAPIProject.Services
                 if (key == null)
                 {
                     throw new NotFoundException("Выбранной вами аудитории не существует");
-
                 }
+                if (key.Owner != "Dean")
+                {
+                    throw new NotFoundException("Выбранная вами аудитория уже забронирована другим пользователем");
+                }
+                if (requestTime.StartTime <= currentTime && createRequestDTO.DateOfBooking == currentDay && key.Owner != "Dean")
+                {
+                    throw new NotFoundException("Данная пара уже началась, вы не можете ее забронировать");
+                }
+
+                if (requestTime.EndTime <= currentTime && createRequestDTO.DateOfBooking <= currentDay)
+                {
+                    throw new NotFoundException("Данная пара уже закончилась, вы не можете ее забронировать");
+                }
+
                 List<Request> requestsTeacher = await _db.Requests.Where(r => 
                 r.Status == RequestStatus.Approved 
                 && user.Id == r.OwnerId 
                 && r.ClassroomNumber == createRequestDTO.ClassroomNumber && r.TimeId == createRequestDTO.TimeId && r.DateOfBooking.DayOfWeek == createRequestDTO.DateOfBooking.DayOfWeek).ToListAsync();
-
                 List<Request> requestsAll = await _db.Requests.Where(rA => rA.Status == RequestStatus.Approved && rA.ClassroomNumber == createRequestDTO.ClassroomNumber && rA.TimeId == createRequestDTO.TimeId && rA.DateOfBooking == createRequestDTO.DateOfBooking).ToListAsync();
                 List<Request> userRequests = await _db.Requests.Where(uR => uR.OwnerId == user.Id && uR.ClassroomNumber == createRequestDTO.ClassroomNumber && uR.TimeId == createRequestDTO.TimeId && uR.DateOfBooking == createRequestDTO.DateOfBooking).ToListAsync();
                 if(userRequests.Count > 0)
@@ -77,7 +92,7 @@ namespace tsuKeysAPIProject.Services
                     _db.Requests.Add(requestAll);
                     await _db.SaveChangesAsync();
                 }
-                else if (requestsTeacher.Count > 0 && user.Role == Roles.Teacher)
+                else if (requestsTeacher.Count > 0 && (user.Role == Roles.Teacher || user.Role == Roles.DeanTeacher))
                 {
                     Request requestTeacher = new Request()
                     {
@@ -137,7 +152,7 @@ namespace tsuKeysAPIProject.Services
             if (!string.IsNullOrEmpty(email))
             {
                 var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == email);
-                if (user.Role == Roles.Administrator || user.Role == Roles.Dean)
+                if (user.Role == Roles.Administrator || user.Role == Roles.Dean || user.Role == Roles.DeanTeacher)
                 {
                     if (statuses != null && statuses.Any())
                     {
@@ -218,7 +233,7 @@ namespace tsuKeysAPIProject.Services
             {
                 var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == email);
                 var allRequests = _db.Requests.Where(aL => aL.OwnerId == user.Id).AsQueryable();
-                if (user.Role == Roles.Teacher || user.Role == Roles.Student)
+                if (user.Role == Roles.Teacher || user.Role == Roles.Student || user.Role == Roles.DeanTeacher)
                 {
                     if (statuses != null && statuses.Any())
                     {
@@ -295,12 +310,14 @@ namespace tsuKeysAPIProject.Services
                 var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == email);
                 var request = await _db.Requests.FirstOrDefaultAsync(r => r.Id == approveRequestDTO.RequestId);
 
-                if (user.Role == Roles.Dean || user.Role == Roles.Administrator )
+                if (user.Role == Roles.Dean || user.Role == Roles.Administrator || user.Role == Roles.DeanTeacher )
                 {
                     if(request != null)
                     {
-                        if (request.Status != RequestStatus.Approved && request.Status != RequestStatus.Pending)
+                        if (request.Status != RequestStatus.Approved)
                         {
+                            var allRequests = await _db.Requests.Where(aR => aR.ClassroomNumber.Contains(request.ClassroomNumber) && aR.TimeId == request.TimeId && aR.DateOfBooking == request.DateOfBooking).ToListAsync();
+                            allRequests.ForEach(req => req.Status = RequestStatus.Rejected);
                             request.Status = RequestStatus.Approved;
                             await _db.SaveChangesAsync();
                         }
@@ -333,11 +350,11 @@ namespace tsuKeysAPIProject.Services
                 var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == email);
                 var request = await _db.Requests.FirstOrDefaultAsync(r => r.Id == rejectRequestDTO.RequestId);
 
-                if (user.Role == Roles.Dean || user.Role == Roles.Administrator)
+                if (user.Role == Roles.Dean || user.Role == Roles.Administrator || user.Role == Roles.DeanTeacher)
                 {
                     if (request != null)
                     {
-                        if (request.Status != RequestStatus.Rejected && request.Status != RequestStatus.Pending)
+                        if (request.Status != RequestStatus.Rejected)
                         {
                             request.Status = RequestStatus.Rejected;
                             await _db.SaveChangesAsync();
@@ -373,7 +390,7 @@ namespace tsuKeysAPIProject.Services
                 if(user != null)
                 {
                     var request = await _db.Requests.FirstOrDefaultAsync(r => r.Id == deleteRequestDTO.RequestId);
-                    if (user.Role == Roles.Teacher || user.Role == Roles.Student)
+                    if (user.Role == Roles.Teacher || user.Role == Roles.Student || user.Role == Roles.DeanTeacher)
                     {
                         if (request != null)
                         {
