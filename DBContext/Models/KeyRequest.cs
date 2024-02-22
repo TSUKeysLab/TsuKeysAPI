@@ -5,10 +5,11 @@ namespace tsuKeysAPIProject.DBContext.Models
 {
     public class KeyRequest
     {
+        [Key]
+        public Guid Id { get; set; }
         public string KeyOwner { get; set; }
         public string KeyRecipient { get; set; }
-        [Key]
         public string ClassroomNumber { get; set; }
-        public RequestStatus Status { get; set; }
+        public KeyRequestStatus Status { get; set; }
     }
 }

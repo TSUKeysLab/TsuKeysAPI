@@ -42,9 +42,6 @@ namespace tsuKeysAPIProject.Controllers
             return Ok();
         }
 
-
-        
-
         [HttpPost("request")]
         [Authorize(Policy = "TokenNotInBlackList")]
         [ProducesResponseType(200)]
@@ -121,14 +118,14 @@ namespace tsuKeysAPIProject.Controllers
             return Ok(keyRequests);
         }
 
-        [HttpPut("accept/{classroom}")]
+        [HttpPut("accept/request/{id}")]
         [Authorize(Policy = "TokenNotInBlackList")]
         [ProducesResponseType(200)]
         [ProducesResponseType(typeof(Error), 400)]
         [ProducesResponseType(typeof(Error), 401)]
         [ProducesResponseType(typeof(Error), 403)]
         [ProducesResponseType(typeof(Error), 500)]
-        public async Task<IActionResult> AcceptKeyRequest(string classroom)
+        public async Task<IActionResult> AcceptKeyRequest(Guid id)
         {
             string token = _tokenHelper.GetTokenFromHeader();
             if (token == null)
@@ -136,17 +133,17 @@ namespace tsuKeysAPIProject.Controllers
                 throw new UnauthorizedException("Данный пользователь не авторизован");
             }
 
-            await _keyService.UpdateKeyRequestStatus(classroom, token, RequestStatus.Approved);
+            await _keyService.UpdateKeyRequestStatus(id, token, KeyRequestStatus.Approved);
             return Ok();
         }
-        [HttpPut("decline/{classroom}")]
+        [HttpPut("decline/request/{id}")]
         [Authorize(Policy = "TokenNotInBlackList")]
         [ProducesResponseType(200)]
         [ProducesResponseType(typeof(Error), 400)]
         [ProducesResponseType(typeof(Error), 401)]
         [ProducesResponseType(typeof(Error), 403)]
         [ProducesResponseType(typeof(Error), 500)]
-        public async Task<IActionResult> DeclineKeyRequest(string classroom)
+        public async Task<IActionResult> DeclineKeyRequest(Guid id)
         {
             string token = _tokenHelper.GetTokenFromHeader();
             if (token == null)
@@ -154,7 +151,7 @@ namespace tsuKeysAPIProject.Controllers
                 throw new UnauthorizedException("Данный пользователь не авторизован");
             }
 
-            await _keyService.UpdateKeyRequestStatus(classroom, token, RequestStatus.Rejected);
+            await _keyService.UpdateKeyRequestStatus(id, token, KeyRequestStatus.Rejected);
             return Ok();
         }
 
@@ -165,7 +162,7 @@ namespace tsuKeysAPIProject.Controllers
         [ProducesResponseType(typeof(Error), 401)]
         [ProducesResponseType(typeof(Error), 403)]
         [ProducesResponseType(typeof(Error), 500)]
-        public async Task<IActionResult> ConfirmGetting(string classroom)
+        public async Task<IActionResult> ConfirmGetting(Guid classroom)
         {
             string token = _tokenHelper.GetTokenFromHeader();
             if (token == null)
@@ -196,5 +193,23 @@ namespace tsuKeysAPIProject.Controllers
             return Ok();
         }
 
+        [HttpDelete("delete/request/{id}")]
+        [Authorize(Policy = "TokenNotInBlackList")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(typeof(Error), 400)]
+        [ProducesResponseType(typeof(Error), 401)]
+        [ProducesResponseType(typeof(Error), 403)]
+        [ProducesResponseType(typeof(Error), 500)]
+        public async Task<IActionResult> DeleteRequest(Guid RequestId)
+        {
+            string token = _tokenHelper.GetTokenFromHeader();
+            if (token == null)
+            {
+                throw new UnauthorizedException("Данный пользователь не авторизован");
+            }
+
+            await _keyService.DeleteKeyRequest(token, RequestId);
+            return Ok();
+        }
     }
 }
