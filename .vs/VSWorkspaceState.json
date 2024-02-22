@@ -7,8 +7,9 @@
     "\\DBContext\\DTO",
     "\\DBContext\\DTO\\KeyDTO",
     "\\DBContext\\Models",
-    "\\DBContext\\Models\\Enums"
+    "\\DBContext\\Models\\Enums",
+    "\\Services"
   ],
-  "SelectedNode": "\\DBContext\\DTO\\KeyDTO\\RequestsDTO.cs",
+  "SelectedNode": "\\Services\\KeyService.cs",
   "PreviewInSolutionExplorer": false
 }
