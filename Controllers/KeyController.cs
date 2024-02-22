@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.ComponentModel.DataAnnotations;
 using tsuKeysAPIProject.AdditionalServices.Exceptions;
 using tsuKeysAPIProject.AdditionalServices.TokenHelpers;
@@ -68,7 +69,7 @@ namespace tsuKeysAPIProject.Controllers
         [ProducesResponseType(typeof(Error), 400)]
         [ProducesResponseType(typeof(Error), 401)]
         [ProducesResponseType(typeof(Error), 500)]
-        public async Task<IActionResult> GetAllKeys([FromBody]RequestForAllKeysDTO requestDto)
+        public async Task<IActionResult> GetAllKeys([FromQuery] int? year, [FromQuery] int? month, [FromQuery] int? day, [FromQuery] Guid? timeId, [FromQuery] KeyGettingStatus gettingStatus)
         {
             string token = _tokenHelper.GetTokenFromHeader();
 
@@ -76,8 +77,27 @@ namespace tsuKeysAPIProject.Controllers
             {
                 throw new UnauthorizedException("Данный пользователь не авторизован");
             }
+            if ((day == null || year == null || month == null) && !(day == null && year == null && month == null) ||
+                (day != null && year != null && month != null && timeId == null))
+            {
+                throw new BadRequestException("Неверные параметры даты");
+            }
 
-            var allKeys = await _keyService.GetAllKeys(requestDto, token);
+            DateOnly dateOfRequest = new DateOnly(2010, 10, 10);
+
+            if (year != null && month != null && day != null && timeId != null )
+            {
+                try
+                {
+                    dateOfRequest = new DateOnly(year.Value, month.Value, day.Value);
+                }
+                catch (ArgumentOutOfRangeException)
+                {
+                    throw new BadRequestException("Неверный формат даты");
+                }
+            }
+            
+            var allKeys = await _keyService.GetAllKeys(dateOfRequest, timeId, token, gettingStatus);
             return Ok(allKeys);
         }
 

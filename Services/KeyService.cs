@@ -113,7 +113,7 @@ namespace tsuKeysAPIProject.Services
 
         }
 
-        public async Task<List<KeyInfoDTO>> GetAllKeys(RequestForAllKeysDTO requestDto, string token)
+        public async Task<List<KeyInfoDTO>> GetAllKeys(DateOnly? dateOfRequest, Guid? timeId, string token, KeyGettingStatus gettingStatus)
         {
             var userEmail = _tokenHelper.GetUserEmailFromToken(token);
             var userRole = await _userInfoHelper.GetUserRole(userEmail);
@@ -124,15 +124,23 @@ namespace tsuKeysAPIProject.Services
 
                 var keysForRequest = new List<KeyInfoDTO>();
 
-                var notAvailableClassrooms = await _db.Requests
-                    .Where(u => u.StartTime == requestDto.StartTimeOfClass && u.Status == RequestStatus.Approved)
+                allKeys = allKeys.OrderBy(u => u.ClassroomNumber).ToList();
+
+                if ((userRole == Roles.Student || userRole == Roles.Teacher || userRole == Roles.DeanTeacher) && gettingStatus == KeyGettingStatus.AvailableKeys)
+                {
+
+                    var timeExist = await _db.TimeSlots.AnyAsync(u => u.Id == timeId);
+
+                    if (!timeExist)
+                    {
+                        throw new NotFoundException("Такого времени в расписании нет");
+                    }
+
+                    var notAvailableClassrooms = await _db.Requests
+                    .Where(u => u.TimeId == timeId && u.Status == RequestStatus.Approved && u.DateOfBooking == dateOfRequest)
                     .Select(u => u.ClassroomNumber)
                     .ToListAsync();
 
-                allKeys = allKeys.OrderBy(u => u.ClassroomNumber).ToList();
-
-                if (userRole == Roles.Student || userRole == Roles.Teacher)
-                {
                     foreach (var key in allKeys)
                     {
                         if (!notAvailableClassrooms.Contains(key.ClassroomNumber))
@@ -146,7 +154,7 @@ namespace tsuKeysAPIProject.Services
                     }
                     return keysForRequest;
                 }
-                else if (userRole == Roles.Dean || userRole == Roles.Administrator)
+                else if ((userRole == Roles.Dean || userRole == Roles.Administrator || userRole == Roles.DeanTeacher) && gettingStatus == KeyGettingStatus.AllKeys)
                 {
                     foreach (var key in allKeys)
                     {
