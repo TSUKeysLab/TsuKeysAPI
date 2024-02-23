@@ -12,7 +12,8 @@ namespace tsuKeysAPIProject.Services.IServices.IKeyService
         public Task UpdateKeyRequestStatus(Guid requestId, string token, KeyRequestStatus status);
         public Task<List<KeyInfoDTO>> GetAllKeys(DateOnly? dateOfRequest, Guid? timeId, string Token, KeyGettingStatus gettingStatus);
         public Task<List<KeyRequestResponseDTO>> GetAllRequests(RequestUserStatus userStatus, string token);
-        public Task ConfirmReceipt(Guid requestId, string token);
+        public Task ConfirmReceiptFromUser(Guid requestId, string token);
+        public Task ConfirmReceiptFromDean(Guid requestId, string token);
         public Task<List<UsersWithoutKeysDTO>> GetUsersWithoutKeys(string token);
         public Task DeleteKeyRequest(string token, Guid requestId);
     }
