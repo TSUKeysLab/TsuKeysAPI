@@ -109,8 +109,8 @@ namespace tsuKeysAPIProject.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
-                    b.Property<Guid>("TimeId")
-                        .HasColumnType("uuid");
+                    b.Property<int>("TimeId")
+                        .HasColumnType("integer");
 
                     b.Property<int>("ownerRole")
                         .HasColumnType("integer");
@@ -122,9 +122,11 @@ namespace tsuKeysAPIProject.Migrations
 
             modelBuilder.Entity("tsuKeysAPIProject.DBContext.Models.TimeSlot", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("SlotNumber")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("SlotNumber"));
 
                     b.Property<TimeOnly>("EndTime")
                         .HasColumnType("time without time zone");
@@ -132,7 +134,7 @@ namespace tsuKeysAPIProject.Migrations
                     b.Property<TimeOnly>("StartTime")
                         .HasColumnType("time without time zone");
 
-                    b.HasKey("Id");
+                    b.HasKey("SlotNumber");
 
                     b.ToTable("TimeSlots");
                 });

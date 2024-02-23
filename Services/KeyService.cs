@@ -113,7 +113,7 @@ namespace tsuKeysAPIProject.Services
 
         }
 
-        public async Task<List<KeyInfoDTO>> GetAllKeys(DateOnly? dateOfRequest, Guid? timeId, string token, KeyGettingStatus gettingStatus)
+        public async Task<List<KeyInfoDTO>> GetAllKeys(DateOnly? dateOfRequest, int? timeId, string token, KeyGettingStatus gettingStatus)
         {
             var userEmail = _tokenHelper.GetUserEmailFromToken(token);
             var userRole = await _userInfoHelper.GetUserRole(userEmail);
@@ -129,7 +129,7 @@ namespace tsuKeysAPIProject.Services
                 if ((userRole == Roles.Student || userRole == Roles.Teacher || userRole == Roles.DeanTeacher) && gettingStatus == KeyGettingStatus.AvailableKeys)
                 {
 
-                    var timeExist = await _db.TimeSlots.AnyAsync(u => u.Id == timeId);
+                    var timeExist = await _db.TimeSlots.AnyAsync(u => u.SlotNumber == timeId);
 
                     if (!timeExist)
                     {

@@ -10,7 +10,7 @@ namespace tsuKeysAPIProject.Services.IServices.IKeyService
         public Task DeleteKey(string classroom, string token);
         public Task SendKeyRequest(KeyRequestsDTO keyRequestDTO, string token);
         public Task UpdateKeyRequestStatus(Guid requestId, string token, KeyRequestStatus status);
-        public Task<List<KeyInfoDTO>> GetAllKeys(DateOnly? dateOfRequest, Guid? timeId, string Token, KeyGettingStatus gettingStatus);
+        public Task<List<KeyInfoDTO>> GetAllKeys(DateOnly? dateOfRequest, int? timeId, string Token, KeyGettingStatus gettingStatus);
         public Task<List<KeyRequestResponseDTO>> GetAllRequests(RequestUserStatus userStatus, string token);
         public Task ConfirmReceiptFromUser(Guid requestId, string token);
         public Task ConfirmReceiptFromDean(Guid requestId, string token);

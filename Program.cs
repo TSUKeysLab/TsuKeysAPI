@@ -10,6 +10,7 @@ using tsuKeysAPIProject.AdditionalServices.Exceptions;
 using tsuKeysAPIProject.AdditionalServices.TokenHelpers;
 using tsuKeysAPIProject.AdditionalServices.UserInfoHelper;
 using tsuKeysAPIProject.DBContext;
+using tsuKeysAPIProject.DBContext.Models;
 using tsuKeysAPIProject.Services;
 using tsuKeysAPIProject.Services.IServices.IKeyService;
 using tsuKeysAPIProject.Services.IServices.IRequestService;
@@ -102,6 +103,18 @@ if (app.Environment.IsDevelopment())
 using var serviceScope = app.Services.CreateScope();
 var dbContext = serviceScope.ServiceProvider.GetService<AppDBContext>();
 dbContext?.Database.Migrate();
+
+dbContext.TimeSlots.RemoveRange(dbContext.TimeSlots);
+dbContext.TimeSlots.AddRange(
+            new TimeSlot { SlotNumber = 1, StartTime = TimeOnly.Parse("08:45"), EndTime = TimeOnly.Parse("10:20") },
+            new TimeSlot { SlotNumber = 2, StartTime = TimeOnly.Parse("10:35"), EndTime = TimeOnly.Parse("12:10") },
+            new TimeSlot { SlotNumber = 3, StartTime = TimeOnly.Parse("12:25"), EndTime = TimeOnly.Parse("14:00") },
+            new TimeSlot { SlotNumber = 4, StartTime = TimeOnly.Parse("14:45"), EndTime = TimeOnly.Parse("16:20") },
+            new TimeSlot { SlotNumber = 5, StartTime = TimeOnly.Parse("16:35"), EndTime = TimeOnly.Parse("18:10") },
+            new TimeSlot { SlotNumber = 6, StartTime = TimeOnly.Parse("18:25"), EndTime = TimeOnly.Parse("20:00") }
+        );
+
+dbContext.SaveChanges();
 
 app.UseMiddleware<ExceptionMiddleware>();
 app.UseHttpsRedirection();

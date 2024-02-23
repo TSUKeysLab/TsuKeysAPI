@@ -69,7 +69,7 @@ namespace tsuKeysAPIProject.Controllers
         [ProducesResponseType(typeof(Error), 400)]
         [ProducesResponseType(typeof(Error), 401)]
         [ProducesResponseType(typeof(Error), 500)]
-        public async Task<IActionResult> GetAllKeys([FromQuery] int? year, [FromQuery] int? month, [FromQuery] int? day, [FromQuery] Guid? timeId, [FromQuery][Required] KeyGettingStatus gettingStatus)
+        public async Task<IActionResult> GetAllKeys([FromQuery] int? year, [FromQuery] int? month, [FromQuery] int? day, [FromQuery] int? timeId, [FromQuery][Required] KeyGettingStatus gettingStatus)
         {
             string token = _tokenHelper.GetTokenFromHeader();
 

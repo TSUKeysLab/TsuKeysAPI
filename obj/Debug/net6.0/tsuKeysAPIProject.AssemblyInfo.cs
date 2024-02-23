@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("tsuKeysAPIProject")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d0da89a255c35fc713c8eb09914a196c0133c9fd")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e8482a727f4a7f60045914d907a61c1920be65d7")]
 [assembly: System.Reflection.AssemblyProductAttribute("tsuKeysAPIProject")]
 [assembly: System.Reflection.AssemblyTitleAttribute("tsuKeysAPIProject")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
