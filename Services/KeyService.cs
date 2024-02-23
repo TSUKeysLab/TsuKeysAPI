@@ -65,16 +65,25 @@ namespace tsuKeysAPIProject.Services
             }
         }
 
-        public async Task UpdateKeyRequestStatus(string classroomNumber, string token, RequestStatus status)
+        public async Task UpdateKeyRequestStatus(Guid keyRequestId, string token, KeyRequestStatus status)
         {
             var userEmail = _tokenHelper.GetUserEmailFromToken(token);
 
-            var request = await _db.KeyRequest.FirstOrDefaultAsync(u => u.KeyRecipient == userEmail && u.Status == RequestStatus.Pending);
+            var request = await _db.KeyRequest.FirstOrDefaultAsync(u => u.KeyRecipient == userEmail && u.Status == KeyRequestStatus.Pending);
 
-            if (request != null && request.Status == RequestStatus.Pending)
+            if (request == null)
+            {
+                throw new NotFoundException("Такой заявки не существует");
+            }
+
+            if (request.Status == KeyRequestStatus.Pending)
             {
                 request.Status = status;
                 await _db.SaveChangesAsync();
+            }
+            else
+            {
+                throw new BadRequestException("Статус заявки уже изменить нельзя");
             }
         }
 
@@ -83,7 +92,7 @@ namespace tsuKeysAPIProject.Services
             var userEmail = _tokenHelper.GetUserEmailFromToken(token);
             var userRole = await _userInfoHelper.GetUserRole(userEmail);
 
-            if (userRole == Roles.Administrator || userRole == Roles.Dean) 
+            if (userRole == Roles.Administrator || userRole == Roles.Dean || userRole == Roles.DeanTeacher)
             {
                 var key = await _db.Keys.FirstOrDefaultAsync(u => u.ClassroomNumber == classroom);
 
@@ -104,40 +113,48 @@ namespace tsuKeysAPIProject.Services
 
         }
 
-        public async Task<List<KeyInfoDTO>> GetAllKeys(RequestForAllKeysDTO requestDto, string token)
+        public async Task<List<KeyInfoDTO>> GetAllKeys(DateOnly? dateOfRequest, Guid? timeId, string token, KeyGettingStatus gettingStatus)
         {
             var userEmail = _tokenHelper.GetUserEmailFromToken(token);
             var userRole = await _userInfoHelper.GetUserRole(userEmail);
-            
+
             if (userRole != Roles.User)
             {
                 var allKeys = _db.Keys.ToList();
 
                 var keysForRequest = new List<KeyInfoDTO>();
 
-                var notAvailableClassrooms = await _db.Requests
-                    .Where(u => u.StartTime == requestDto.StartTimeOfClass && u.Status == RequestStatus.Approved)
+                allKeys = allKeys.OrderBy(u => u.ClassroomNumber).ToList();
+
+                if ((userRole == Roles.Student || userRole == Roles.Teacher || userRole == Roles.DeanTeacher) && gettingStatus == KeyGettingStatus.AvailableKeys)
+                {
+
+                    var timeExist = await _db.TimeSlots.AnyAsync(u => u.Id == timeId);
+
+                    if (!timeExist)
+                    {
+                        throw new NotFoundException("Такого времени в расписании нет");
+                    }
+
+                    var notAvailableClassrooms = await _db.Requests
+                    .Where(u => u.TimeId == timeId && u.Status == RequestStatus.Approved && u.DateOfBooking == dateOfRequest)
                     .Select(u => u.ClassroomNumber)
                     .ToListAsync();
 
-                allKeys = allKeys.OrderBy(u => u.ClassroomNumber).ToList();
-
-                if (userRole == Roles.Student || userRole == Roles.Teacher)
-                {
                     foreach (var key in allKeys)
                     {
                         if (!notAvailableClassrooms.Contains(key.ClassroomNumber))
                         {
                             var keyInfoDTO = new KeyInfoDTO
                             {
-                                ClassroomNumber = key.ClassroomNumber,         
+                                ClassroomNumber = key.ClassroomNumber,
                             };
                             keysForRequest.Add(keyInfoDTO);
                         }
                     }
                     return keysForRequest;
                 }
-                else if (userRole == Roles.Dean || userRole == Roles.Administrator)
+                else if ((userRole == Roles.Dean || userRole == Roles.Administrator || userRole == Roles.DeanTeacher) && gettingStatus == KeyGettingStatus.AllKeys)
                 {
                     foreach (var key in allKeys)
                     {
@@ -167,19 +184,19 @@ namespace tsuKeysAPIProject.Services
 
             var recepientRole = await _userInfoHelper.GetUserRole(keyRequestDTO.KeyRecipient);
 
-            if (ownerRole == Roles.Teacher || ownerRole == Roles.Student
-                && recepientRole == Roles.Teacher || recepientRole == Roles.Student)
-            {      
+            if (ownerRole == Roles.Teacher || ownerRole == Roles.Student || ownerRole == Roles.DeanTeacher
+                && recepientRole == Roles.Teacher || recepientRole == Roles.Student || recepientRole == Roles.DeanTeacher)
+            {
                 var keyOwner = _db.Keys
-                    .Where(u => u.Owner == ownerEmail)
+                    .Where(u => u.ClassroomNumber == keyRequestDTO.ClassroomNumber)
                     .Select(u => u.Owner)
                     .FirstOrDefault();
 
                 if (keyOwner == ownerEmail)
                 {
-                    var keyRequestExist = _db.KeyRequest.Any(u => u.KeyOwner == ownerEmail
+                    var keyRequestExist = _db.KeyRequest.Any(u => u.ClassroomNumber == keyRequestDTO.ClassroomNumber
                             && u.KeyRecipient == keyRequestDTO.KeyRecipient
-                            && u.Status == RequestStatus.Pending);
+                            && u.Status == KeyRequestStatus.Pending );
 
                     if (!keyRequestExist)
                     {
@@ -200,12 +217,12 @@ namespace tsuKeysAPIProject.Services
                 else
                 {
                     throw new ForbiddenException("У данного пользователя сейчас нет ключа");
-                }   
+                }
             }
             else
             {
                 throw new ForbiddenException("Ключ может передать только студент или преподаватель");
-            }    
+            }
         }
 
         public async Task<List<KeyRequestResponseDTO>> GetAllRequests(RequestUserStatus userStatus, string token)
@@ -213,7 +230,7 @@ namespace tsuKeysAPIProject.Services
             var userEmail = _tokenHelper.GetUserEmailFromToken(token);
             var userRole = await _userInfoHelper.GetUserRole(userEmail);
 
-            if (userRole != Roles.Teacher && userRole != Roles.Student)
+            if (userRole != Roles.Teacher && userRole != Roles.Student && userRole != Roles.DeanTeacher)
             {
                 throw new ForbiddenException("У вас нет прав для передачи ключа");
             }
@@ -239,7 +256,9 @@ namespace tsuKeysAPIProject.Services
                 {
                     ClassroomNumber = request.ClassroomNumber,
                     KeyRecipientEmail = request.KeyRecipient,
-                    KeyOwnerEmail = request.KeyOwner
+                    KeyOwnerEmail = request.KeyOwner,
+                    Status = request.Status,
+       
                 };
 
                 if (userStatus == RequestUserStatus.Owner)
@@ -259,41 +278,121 @@ namespace tsuKeysAPIProject.Services
             return requestsDto;
         }
 
-        public async Task ConfirmReceipt(string classroomNumber, string token)
+        public async Task ConfirmReceiptFromUser(Guid requestId, string token)
         {
             var userEmail = _tokenHelper.GetUserEmailFromToken(token);
-            var userRole =  await _userInfoHelper.GetUserRole(userEmail);
-
-            var key = await _db.Keys.FirstOrDefaultAsync(u => u.ClassroomNumber == classroomNumber);
-            if (key != null)
+            var userRole = await _userInfoHelper.GetUserRole(userEmail);
+            var request = await _db.KeyRequest.FirstOrDefaultAsync(u => u.Id == requestId);
+            if (request == null)
             {
+                throw new NotFoundException("Заявки на получение не существует");
+            }
+            if (request.Status == KeyRequestStatus.Rejected)
+            {
+                throw new BadRequestException("Заявка была отклонена");
+            }
+            if (request.Status == KeyRequestStatus.Ended)
+            {
+                throw new BadRequestException("Заявка больше недействительна");
+            }
+            var key = await _db.Keys.FirstOrDefaultAsync(u => u.ClassroomNumber == request.ClassroomNumber);
+
+            if (key == null)
+            {
+                throw new NotFoundException("Такого ключа не существует");
+            }
                 if (userRole != Roles.User && userRole != Roles.Administrator)
                 {
-                    if (key.Owner != userEmail)
+                    if (request.KeyRecipient == "Dean" && (userRole == Roles.Dean || userRole == Roles.DeanTeacher))
                     {
-                        if (userRole == Roles.Dean)
-                        {
-                            key.Owner = "Dean";
-                        }
-                        else
-                        {
-                            key.Owner = userEmail;
-                        }
+
+                        var allUsersRequest = await _db.KeyRequest
+                                .Where(u => u.KeyOwner == key.Owner && u.ClassroomNumber == key.ClassroomNumber)
+                                .ToListAsync();
+
+                        allUsersRequest.ForEach(request => request.Status = KeyRequestStatus.Ended);
+
+                        key.Owner = "Dean";
+                        await _db.SaveChangesAsync();
+                    }
+                    else if (request.KeyRecipient == userEmail)
+                    {
+                        var allUsersRequest = await _db.KeyRequest
+                                .Where(u => u.KeyOwner == key.Owner && u.ClassroomNumber == key.ClassroomNumber)
+                                .ToListAsync();
+
+                        allUsersRequest.ForEach(request => request.Status = KeyRequestStatus.Ended);
+
+                        key.Owner = userEmail;
                         await _db.SaveChangesAsync();
                     }
                     else
                     {
-                        throw new BadRequestException("Ключ уже у этого пользователя");
+                        throw new BadRequestException("Пользователь не имеет отношения к этой заявке");
                     }
                 }
                 else
                 {
                     throw new ForbiddenException("Ключ может получить только пользователь с ролью: Student, Dean, Teacher");
                 }
+        }
+
+        public async Task ConfirmReceiptFromDean(Guid requestId, string token)
+        {
+            var userEmail = _tokenHelper.GetUserEmailFromToken(token);
+
+            var userId = await _db.Users
+                .Where(u => u.Email == userEmail)
+                .Select(u => u.Id)
+                .FirstOrDefaultAsync();
+
+            var userRole = await _userInfoHelper.GetUserRole(userEmail);
+            var request = await _db.Requests.FirstOrDefaultAsync(u => u.Id == requestId);
+            if (request == null)
+            {
+                throw new NotFoundException("Заявки на бронь не существует");
+            }
+            if (request.Status == RequestStatus.Rejected)
+            {
+                throw new BadRequestException("Заявка была отклонена");
+            }
+            if (request.Status == RequestStatus.Pending)
+            {
+                throw new BadRequestException("Заявка ещё не одобрена");
+            }
+            var key = await _db.Keys.FirstOrDefaultAsync(u => u.ClassroomNumber == request.ClassroomNumber);
+
+            if (key == null)
+            {
+                throw new NotFoundException("Такого ключа не существует");
+            }
+
+            if (userRole != Roles.User && userRole != Roles.Administrator && userRole != Roles.Dean)
+            {
+                if (request.OwnerId == userId)
+                {
+                    DateTime utcNow = DateTime.UtcNow;
+                    TimeOnly currentTime = new TimeOnly(utcNow.Hour, utcNow.Minute, utcNow.Second);
+                    DateOnly currentDay = new DateOnly(utcNow.Year, utcNow.Month, utcNow.Day);
+
+                    if (currentDay == request.DateOfBooking && currentTime > request.StartTime && currentTime < request.EndTime)
+                    {
+                        key.Owner = userEmail;
+                        await _db.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        throw new BadRequestException("Пара ещё не началась или уже прошла");
+                    }
+                }
+                else
+                {
+                    throw new BadRequestException("Пользователь не имеет отношения к этой заявке");
+                }
             }
             else
             {
-                throw new BadRequestException("Такого ключе не существует");
+                throw new ForbiddenException("Ключ может получить только пользователь с ролью: Student, DeanTeacher, Teacher");
             }
         }
 
@@ -304,7 +403,6 @@ namespace tsuKeysAPIProject.Services
 
             if (userRole != Roles.User)
             {
-
                 var allUsers = await _db.Users.ToListAsync();
                 var allKeysUsers = await _db.Keys
                     .Select(u => u.Owner)
@@ -331,5 +429,31 @@ namespace tsuKeysAPIProject.Services
                 throw new ForbiddenException("Роль пользователя не подходит для этого");
             }
         }
-    }
+        public async Task DeleteKeyRequest(string token, Guid requestId)
+        {
+            var userEmail = _tokenHelper.GetUserEmailFromToken(token);
+            var request = await _db.KeyRequest.FirstOrDefaultAsync(u => u.Id == requestId);
+            if (request == null)
+            {
+                throw new NotFoundException("Такой заявки не существует");
+            }
+
+            if (request.Status != KeyRequestStatus.Ended && request.Status != KeyRequestStatus.Rejected)
+                {
+                    if (request.KeyOwner == userEmail)
+                    {
+                        _db.KeyRequest.Remove(request);
+                        await _db.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        throw new ForbiddenException("Удалить заявку может только создатель");
+                    }
+                }
+                else
+                {
+                    throw new BadRequestException("Заявку уже обработана");
+                }
+            }
+        }
 }
