@@ -49,7 +49,7 @@ namespace tsuKeysAPIProject.Controllers
         [ProducesResponseType(typeof(Error), 400)]
         [ProducesResponseType(typeof(Error), 401)]
         [ProducesResponseType(typeof(Error), 500)]
-        public async Task<IActionResult> getRequests([FromQuery] List<RequestStatus> statuses, int page = 1,int size = 5, RequestSorting sorting = RequestSorting.CreateAsc, string? classroomNumber = null, Guid? timeId = null)
+        public async Task<IActionResult> getRequests([FromQuery] List<RequestStatus> statuses, int page = 1,int size = 5, RequestSorting sorting = RequestSorting.CreateAsc, string? classroomNumber = null, int? timeId = null)
         {
 
             string token = _tokenHelper.GetTokenFromHeader();

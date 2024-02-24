@@ -1,8 +1,11 @@
-﻿namespace tsuKeysAPIProject.DBContext.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace tsuKeysAPIProject.DBContext.Models
 {
     public class TimeSlot
     {
-        public Guid Id { get; set; }
+        [Key]
+        public int SlotNumber { get; set; }
 
         public TimeOnly StartTime { get; set; }
 

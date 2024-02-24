@@ -24,7 +24,7 @@ namespace tsuKeysAPIProject.Services
             var schedule = await _db.TimeSlots
                         .Select(ts => new GetScheduleDTO
                         {
-                            Id = ts.Id,
+                            Id = ts.SlotNumber,
                             StartTime = ts.StartTime,
                             EndTime = ts.EndTime
                         })

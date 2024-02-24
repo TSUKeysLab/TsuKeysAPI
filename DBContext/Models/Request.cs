@@ -6,7 +6,7 @@ namespace tsuKeysAPIProject.DBContext.Models
     {
         public Guid Id { get; set; }
 
-        public Guid TimeId { get; set; }
+        public int TimeId { get; set; }
 
         public DateOnly DateOfBooking { get; set; }
 

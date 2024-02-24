@@ -7,10 +7,8 @@ using tsuKeysAPIProject.AdditionalServices.Exceptions;
 using tsuKeysAPIProject.AdditionalServices.TokenHelpers;
 using tsuKeysAPIProject.DBContext;
 using tsuKeysAPIProject.DBContext.DTO.RequestDTO;
-using tsuKeysAPIProject.DBContext.DTO.RolesDTO;
 using tsuKeysAPIProject.DBContext.Models;
 using tsuKeysAPIProject.DBContext.Models.Enums;
-using tsuKeysAPIProject.Migrations;
 using tsuKeysAPIProject.Services.IServices.IRequestService;
 
 namespace tsuKeysAPIProject.Services
@@ -38,7 +36,7 @@ namespace tsuKeysAPIProject.Services
                 {
                     throw new ForbiddenException("У вас не хватает прав, чтобы создавать заявки, дождитесь получения роли!");
                 }
-                var requestTime = await _db.TimeSlots.FirstOrDefaultAsync(rt => rt.Id == createRequestDTO.TimeId);
+                var requestTime = await _db.TimeSlots.FirstOrDefaultAsync(rt => rt.SlotNumber == createRequestDTO.TimeId);
                 var key = await _db.Keys.FirstOrDefaultAsync(k => k.ClassroomNumber == createRequestDTO.ClassroomNumber);
                 DateTime utcNow = DateTime.UtcNow;
                 TimeOnly currentTime = new TimeOnly(utcNow.Hour, utcNow.Minute, utcNow.Second);
@@ -147,7 +145,7 @@ namespace tsuKeysAPIProject.Services
             }
 
         }
-        public async Task<GetRequestsPageDTO> getAllRequestsDTO(List<RequestStatus> statuses, string token, int page,int size, string? classroomNumber, RequestSorting sorting, Guid? timeId)
+        public async Task<GetRequestsPageDTO> getAllRequestsDTO(List<RequestStatus> statuses, string token, int page,int size, string? classroomNumber, RequestSorting sorting, int? timeId)
         {
             var allRequests = _db.Requests.AsQueryable();
             List<GetAllRequestsDTO> requests = new List<GetAllRequestsDTO>();

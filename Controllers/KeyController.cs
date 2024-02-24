@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.ComponentModel.DataAnnotations;
 using tsuKeysAPIProject.AdditionalServices.Exceptions;
 using tsuKeysAPIProject.AdditionalServices.TokenHelpers;
@@ -42,9 +43,6 @@ namespace tsuKeysAPIProject.Controllers
             return Ok();
         }
 
-
-        
-
         [HttpPost("request")]
         [Authorize(Policy = "TokenNotInBlackList")]
         [ProducesResponseType(200)]
@@ -71,7 +69,7 @@ namespace tsuKeysAPIProject.Controllers
         [ProducesResponseType(typeof(Error), 400)]
         [ProducesResponseType(typeof(Error), 401)]
         [ProducesResponseType(typeof(Error), 500)]
-        public async Task<IActionResult> GetAllKeys([FromBody]RequestForAllKeysDTO requestDto)
+        public async Task<IActionResult> GetAllKeys([FromQuery] int? year, [FromQuery] int? month, [FromQuery] int? day, [FromQuery] int? timeId, [FromQuery][Required] KeyGettingStatus gettingStatus)
         {
             string token = _tokenHelper.GetTokenFromHeader();
 
@@ -80,7 +78,27 @@ namespace tsuKeysAPIProject.Controllers
                 throw new UnauthorizedException("Данный пользователь не авторизован");
             }
 
-            var allKeys = await _keyService.GetAllKeys(requestDto, token);
+            if ((day == null || year == null || month == null) && !(day == null && year == null && month == null) ||
+                (day != null && year != null && month != null && timeId == null))
+            {
+                throw new BadRequestException("Неверные параметры даты");
+            }
+
+            DateOnly dateOfRequest = new DateOnly(2010, 10, 10);
+
+            if (year != null && month != null && day != null && timeId != null )
+            {
+                try
+                {
+                    dateOfRequest = new DateOnly(year.Value, month.Value, day.Value);
+                }
+                catch (ArgumentOutOfRangeException)
+                {
+                    throw new BadRequestException("Неверный формат даты");
+                }
+            }
+            
+            var allKeys = await _keyService.GetAllKeys(dateOfRequest, timeId, token, gettingStatus);
             return Ok(allKeys);
         }
 
@@ -91,7 +109,7 @@ namespace tsuKeysAPIProject.Controllers
         [ProducesResponseType(typeof(Error), 401)]
         [ProducesResponseType(typeof(Error), 403)]
         [ProducesResponseType(typeof(Error), 500)]
-        public async Task<IActionResult> GetUsersWithoutKeys(string classroom)
+        public async Task<IActionResult> GetUsersWithoutKeys()
         {
             string token = _tokenHelper.GetTokenFromHeader();
             if (token == null)
@@ -121,14 +139,14 @@ namespace tsuKeysAPIProject.Controllers
             return Ok(keyRequests);
         }
 
-        [HttpPut("accept/{classroom}")]
+        [HttpPut("accept/request/{id}")]
         [Authorize(Policy = "TokenNotInBlackList")]
         [ProducesResponseType(200)]
         [ProducesResponseType(typeof(Error), 400)]
         [ProducesResponseType(typeof(Error), 401)]
         [ProducesResponseType(typeof(Error), 403)]
         [ProducesResponseType(typeof(Error), 500)]
-        public async Task<IActionResult> AcceptKeyRequest(string classroom)
+        public async Task<IActionResult> AcceptKeyRequest(Guid id)
         {
             string token = _tokenHelper.GetTokenFromHeader();
             if (token == null)
@@ -136,17 +154,17 @@ namespace tsuKeysAPIProject.Controllers
                 throw new UnauthorizedException("Данный пользователь не авторизован");
             }
 
-            await _keyService.UpdateKeyRequestStatus(classroom, token, RequestStatus.Approved);
+            await _keyService.UpdateKeyRequestStatus(id, token, KeyRequestStatus.Approved);
             return Ok();
         }
-        [HttpPut("decline/{classroom}")]
+        [HttpPut("decline/request/{id}")]
         [Authorize(Policy = "TokenNotInBlackList")]
         [ProducesResponseType(200)]
         [ProducesResponseType(typeof(Error), 400)]
         [ProducesResponseType(typeof(Error), 401)]
         [ProducesResponseType(typeof(Error), 403)]
         [ProducesResponseType(typeof(Error), 500)]
-        public async Task<IActionResult> DeclineKeyRequest(string classroom)
+        public async Task<IActionResult> DeclineKeyRequest(Guid id)
         {
             string token = _tokenHelper.GetTokenFromHeader();
             if (token == null)
@@ -154,18 +172,18 @@ namespace tsuKeysAPIProject.Controllers
                 throw new UnauthorizedException("Данный пользователь не авторизован");
             }
 
-            await _keyService.UpdateKeyRequestStatus(classroom, token, RequestStatus.Rejected);
+            await _keyService.UpdateKeyRequestStatus(id, token, KeyRequestStatus.Rejected);
             return Ok();
         }
 
-        [HttpPut("confirm/{classroom}")]
+        [HttpPut("confirm/getting/{request}")]
         [Authorize(Policy = "TokenNotInBlackList")]
         [ProducesResponseType(200)]
         [ProducesResponseType(typeof(Error), 400)]
         [ProducesResponseType(typeof(Error), 401)]
         [ProducesResponseType(typeof(Error), 403)]
         [ProducesResponseType(typeof(Error), 500)]
-        public async Task<IActionResult> ConfirmGetting(string classroom)
+        public async Task<IActionResult> ConfirmGettingFromUser(Guid request)
         {
             string token = _tokenHelper.GetTokenFromHeader();
             if (token == null)
@@ -173,7 +191,26 @@ namespace tsuKeysAPIProject.Controllers
                 throw new UnauthorizedException("Данный пользователь не авторизован");
             }
 
-            await _keyService.ConfirmReceipt(classroom, token);
+            await _keyService.ConfirmReceiptFromUser(request, token);
+            return Ok();
+        }
+
+        [HttpPut("confirm/dean/{request}")]
+        [Authorize(Policy = "TokenNotInBlackList")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(typeof(Error), 400)]
+        [ProducesResponseType(typeof(Error), 401)]
+        [ProducesResponseType(typeof(Error), 403)]
+        [ProducesResponseType(typeof(Error), 500)]
+        public async Task<IActionResult> ConfirmGettingFromDean(Guid request)
+        {
+            string token = _tokenHelper.GetTokenFromHeader();
+            if (token == null)
+            {
+                throw new UnauthorizedException("Данный пользователь не авторизован");
+            }
+
+            await _keyService.ConfirmReceiptFromDean(request, token);
             return Ok();
         }
 
@@ -196,5 +233,23 @@ namespace tsuKeysAPIProject.Controllers
             return Ok();
         }
 
+        [HttpDelete("delete/request/{request}")]
+        [Authorize(Policy = "TokenNotInBlackList")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(typeof(Error), 400)]
+        [ProducesResponseType(typeof(Error), 401)]
+        [ProducesResponseType(typeof(Error), 403)]
+        [ProducesResponseType(typeof(Error), 500)]
+        public async Task<IActionResult> DeleteRequest(Guid request)
+        {
+            string token = _tokenHelper.GetTokenFromHeader();
+            if (token == null)
+            {
+                throw new UnauthorizedException("Данный пользователь не авторизован");
+            }
+
+            await _keyService.DeleteKeyRequest(token, request);
+            return Ok();
+        }
     }
 }
