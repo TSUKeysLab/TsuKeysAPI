@@ -38,9 +38,12 @@ namespace tsuKeysAPIProject.Services
                 }
                 var requestTime = await _db.TimeSlots.FirstOrDefaultAsync(rt => rt.SlotNumber == createRequestDTO.TimeId);
                 var key = await _db.Keys.FirstOrDefaultAsync(k => k.ClassroomNumber == createRequestDTO.ClassroomNumber);
+
                 DateTime utcNow = DateTime.UtcNow;
+                utcNow.AddHours(7);
                 TimeOnly currentTime = new TimeOnly(utcNow.Hour, utcNow.Minute, utcNow.Second);
-                DateOnly currentDay = new DateOnly(utcNow.Year,utcNow.Month, utcNow.Day);
+                DateOnly currentDay = new DateOnly(utcNow.Year, utcNow.Month, utcNow.Day);
+
                 if (requestTime == null)
                 {
                     throw new NotFoundException("Выбранное вами время не существует");
@@ -76,7 +79,7 @@ namespace tsuKeysAPIProject.Services
                         ClassroomNumber = createRequestDTO.ClassroomNumber,
                         RequestOwner = user.Name,
                         DateOfBooking = createRequestDTO.DateOfBooking,
-                        DateOfSent = DateTime.UtcNow,
+                        DateOfSent = utcNow,
                         StartTime = requestTime.StartTime,
                         EndTime = requestTime.EndTime,
                         Status = RequestStatus.Rejected,
@@ -97,7 +100,7 @@ namespace tsuKeysAPIProject.Services
                         ClassroomNumber = createRequestDTO.ClassroomNumber,
                         RequestOwner = user.Name,
                         DateOfBooking = createRequestDTO.DateOfBooking,
-                        DateOfSent = DateTime.UtcNow,
+                        DateOfSent = utcNow,
                         StartTime = requestTime.StartTime,
                         EndTime = requestTime.EndTime,
                         Status = RequestStatus.Approved,
@@ -115,7 +118,7 @@ namespace tsuKeysAPIProject.Services
                         ClassroomNumber = createRequestDTO.ClassroomNumber,
                         RequestOwner = user.Name,
                         DateOfBooking = createRequestDTO.DateOfBooking,
-                        DateOfSent = DateTime.UtcNow,
+                        DateOfSent = utcNow,
                         StartTime = requestTime.StartTime,
                         EndTime = requestTime.EndTime,
                         Status = RequestStatus.Pending,

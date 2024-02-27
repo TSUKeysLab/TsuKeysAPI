@@ -11,5 +11,6 @@ namespace tsuKeysAPIProject.DBContext.Models
         public string KeyRecipient { get; set; }
         public string ClassroomNumber { get; set; }
         public KeyRequestStatus Status { get; set; }
+        public TimeOnly EndOfRequest { get; set; }
     }
 }
