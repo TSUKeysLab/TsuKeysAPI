@@ -12,8 +12,8 @@ using tsuKeysAPIProject.DBContext;
 namespace tsuKeysAPIProject.Migrations
 {
     [DbContext(typeof(AppDBContext))]
-    [Migration("20240224124532_Init")]
-    partial class Init
+    [Migration("20240227053424_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -63,6 +63,9 @@ namespace tsuKeysAPIProject.Migrations
                     b.Property<string>("ClassroomNumber")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<TimeOnly>("EndOfRequest")
+                        .HasColumnType("time without time zone");
 
                     b.Property<string>("KeyOwner")
                         .IsRequired()

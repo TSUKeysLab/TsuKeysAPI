@@ -10,6 +10,6 @@
     "\\DBContext\\Models\\Enums",
     "\\Services"
   ],
-  "SelectedNode": "\\tsuKeysAPIProject.sln",
+  "SelectedNode": "\\DBContext\\Models\\Enums\\RequestStatus.cs",
   "PreviewInSolutionExplorer": false
 }

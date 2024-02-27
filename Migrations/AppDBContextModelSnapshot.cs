@@ -61,6 +61,9 @@ namespace tsuKeysAPIProject.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<TimeOnly>("EndOfRequest")
+                        .HasColumnType("time without time zone");
+
                     b.Property<string>("KeyOwner")
                         .IsRequired()
                         .HasColumnType("text");

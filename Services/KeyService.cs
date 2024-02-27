@@ -69,6 +69,8 @@ namespace tsuKeysAPIProject.Services
         {
             var userEmail = _tokenHelper.GetUserEmailFromToken(token);
 
+            var userRole = await _userInfoHelper.GetUserRole(userEmail);
+
             var request = await _db.KeyRequest.FirstOrDefaultAsync(u => u.KeyRecipient == userEmail && u.Status == KeyRequestStatus.Pending);
 
             if (request == null)
@@ -76,15 +78,23 @@ namespace tsuKeysAPIProject.Services
                 throw new NotFoundException("Такой заявки не существует");
             }
 
-            if (request.Status == KeyRequestStatus.Pending)
+            if (userRole != Roles.User)
             {
-                request.Status = status;
-                await _db.SaveChangesAsync();
+                if (request.Status == KeyRequestStatus.Pending)
+                {
+                    request.Status = status;
+                    await _db.SaveChangesAsync();
+                }
+                else
+                {
+                    throw new BadRequestException("Статус заявки уже изменить нельзя");
+                }
             }
             else
             {
-                throw new BadRequestException("Статус заявки уже изменить нельзя");
+                throw new ForbiddenException("СЛЫШ ТЕБЕ СЮДА НЕЛЬЗЯ");
             }
+            
         }
 
         public async Task DeleteKey(string classroom, string token)
@@ -184,8 +194,8 @@ namespace tsuKeysAPIProject.Services
 
             var recepientRole = await _userInfoHelper.GetUserRole(keyRequestDTO.KeyRecipient);
 
-            if (ownerRole == Roles.Teacher || ownerRole == Roles.Student || ownerRole == Roles.DeanTeacher
-                && recepientRole == Roles.Teacher || recepientRole == Roles.Student || recepientRole == Roles.DeanTeacher)
+            if ((ownerRole == Roles.Teacher || ownerRole == Roles.Student || ownerRole == Roles.DeanTeacher)
+                && (recepientRole == Roles.Teacher || recepientRole == Roles.Student || recepientRole == Roles.DeanTeacher))
             {
                 var keyOwner = _db.Keys
                     .Where(u => u.ClassroomNumber == keyRequestDTO.ClassroomNumber)
@@ -200,11 +210,24 @@ namespace tsuKeysAPIProject.Services
 
                     if (!keyRequestExist)
                     {
+                        DateTime utcNow = DateTime.UtcNow;
+                        utcNow.AddHours(7);
+                        
+                        TimeOnly timeOnly = new TimeOnly(utcNow.Hour, utcNow.Minute, utcNow.Second);
+
+
+                        var endOfClass = await _db.TimeSlots
+                            .Where(u => u.StartTime < timeOnly && u.EndTime > timeOnly)
+                            .Select(u => u.EndTime)
+                            .FirstOrDefaultAsync();
+
                         KeyRequest request = new KeyRequest()
                         {
                             KeyOwner = ownerEmail,
                             KeyRecipient = keyRequestDTO.KeyRecipient,
-                            ClassroomNumber = keyRequestDTO.ClassroomNumber
+                            ClassroomNumber = keyRequestDTO.ClassroomNumber,
+                            Status = KeyRequestStatus.Pending,
+                            EndOfRequest = endOfClass
                         };
                         await _db.AddAsync(request);
                         await _db.SaveChangesAsync();
@@ -221,7 +244,7 @@ namespace tsuKeysAPIProject.Services
             }
             else
             {
-                throw new ForbiddenException("Ключ может передать только студент или преподаватель");
+                throw new ForbiddenException("Ключ может передать только студент или преподаватель или преподаватель из деканата");
             }
         }
 
@@ -249,6 +272,8 @@ namespace tsuKeysAPIProject.Services
                 throw new ForbiddenException("Вы не имеете отношения к данной заявке");
             }
 
+
+
             var requestsDto = new List<KeyRequestResponseDTO>();
             foreach (var request in userRequests)
             {
@@ -258,7 +283,7 @@ namespace tsuKeysAPIProject.Services
                     KeyRecipientEmail = request.KeyRecipient,
                     KeyOwnerEmail = request.KeyOwner,
                     Status = request.Status,
-       
+                    EndOfRequest = request.EndOfRequest 
                 };
 
                 if (userStatus == RequestUserStatus.Owner)
@@ -333,7 +358,7 @@ namespace tsuKeysAPIProject.Services
                 }
                 else
                 {
-                    throw new ForbiddenException("Ключ может получить только пользователь с ролью: Student, Dean, Teacher");
+                    throw new ForbiddenException("Ключ может получить только пользователь с ролью: Student, Dean, DeanTeacher, Teacher");
                 }
         }
 
@@ -372,10 +397,13 @@ namespace tsuKeysAPIProject.Services
                 if (request.OwnerId == userId)
                 {
                     DateTime utcNow = DateTime.UtcNow;
+                    utcNow.AddHours(7);
                     TimeOnly currentTime = new TimeOnly(utcNow.Hour, utcNow.Minute, utcNow.Second);
                     DateOnly currentDay = new DateOnly(utcNow.Year, utcNow.Month, utcNow.Day);
 
-                    if (currentDay == request.DateOfBooking && currentTime > request.StartTime && currentTime < request.EndTime)
+                    System.Console.WriteLine(currentDay == request.DateOfBooking && currentTime >= request.StartTime && currentTime < request.EndTime);
+
+                    if (currentDay == request.DateOfBooking && currentTime >= request.StartTime && currentTime < request.EndTime)
                     {
                         key.Owner = userEmail;
                         await _db.SaveChangesAsync();

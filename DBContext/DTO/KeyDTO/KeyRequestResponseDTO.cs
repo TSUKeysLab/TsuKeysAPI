@@ -9,6 +9,7 @@ namespace tsuKeysAPIProject.DBContext.DTO.KeyDTO
         public string? KeyRecipientFullName { get; set; }
         public string? KeyRecipientEmail { get; set; }
         public string ClassroomNumber { get; set; }
+        public TimeOnly EndOfRequest {  get; set; }
         public KeyRequestStatus Status { get; set; }
     }
 }
