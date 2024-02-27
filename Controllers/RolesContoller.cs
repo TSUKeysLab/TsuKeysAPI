@@ -42,7 +42,7 @@ namespace tsuKeysAPIProject.Controllers
             return Ok();
         }
         [HttpGet("GetUserInformation")]
-        [ProducesResponseType(typeof(GetUserInformationResponseDTO), 200)]
+        [ProducesResponseType(typeof(GetUsersPageDTO), 200)]
         [ProducesResponseType(typeof(Error), 400)]
         [ProducesResponseType(typeof(Error), 500)]
         public async Task<IActionResult> getUserInformation([FromQuery] string? fullname, Roles? role, int size=5, int page=1)

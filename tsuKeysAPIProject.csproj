@@ -25,6 +25,7 @@
 
   <ItemGroup>
     <Folder Include="AdditionalServices\KeyHelper\" />
+    <Folder Include="Migrations\" />
   </ItemGroup>
 
 </Project>

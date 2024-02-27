@@ -4,6 +4,8 @@ namespace tsuKeysAPIProject.DBContext.DTO.RolesDTO
 {
     public class GetUserInformationResponseDTO
     {
+
+        public  Guid UserId { get; set; }
         
         public string Fullname { get; set; }
 

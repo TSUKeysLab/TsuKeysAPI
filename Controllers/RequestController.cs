@@ -13,6 +13,7 @@ using tsuKeysAPIProject.Services.IServices.IUserService;
 
 namespace tsuKeysAPIProject.Controllers
 {
+    [Route("/request")]
     public class RequestController : Controller
     {
 
@@ -29,7 +30,8 @@ namespace tsuKeysAPIProject.Controllers
 
 
         [Authorize(Policy = "TokenNotInBlackList")]
-        [HttpPost("createRequest")]
+        [HttpPost("create")]
+        [ProducesResponseType(200)]
         [ProducesResponseType(typeof(Error), 400)]
         [ProducesResponseType(typeof(Error), 401)]
         [ProducesResponseType(typeof(Error), 500)]
@@ -46,6 +48,7 @@ namespace tsuKeysAPIProject.Controllers
         }
         [Authorize(Policy = "TokenNotInBlackList")]
         [HttpGet("getRequests")]
+        [ProducesResponseType(typeof(GetRequestsPageDTO), 200)]
         [ProducesResponseType(typeof(Error), 400)]
         [ProducesResponseType(typeof(Error), 401)]
         [ProducesResponseType(typeof(Error), 500)]
@@ -63,7 +66,8 @@ namespace tsuKeysAPIProject.Controllers
         }
 
         [Authorize(Policy = "TokenNotInBlackList")]
-        [HttpGet("getAllUsersRequests")]
+        [HttpGet("getMyRequests")]
+        [ProducesResponseType(typeof(GetRequestsPageDTO), 200)]
         [ProducesResponseType(typeof(Error), 400)]
         [ProducesResponseType(typeof(Error), 401)]
         [ProducesResponseType(typeof(Error), 500)]
@@ -81,7 +85,8 @@ namespace tsuKeysAPIProject.Controllers
         }
 
         [Authorize(Policy = "TokenNotInBlackList")]
-        [HttpPut("ApproveRequest")]
+        [HttpPut("approve")]
+        [ProducesResponseType(200)]
         [ProducesResponseType(typeof(Error), 400)]
         [ProducesResponseType(typeof(Error), 401)]
         [ProducesResponseType(typeof(Error), 500)]
@@ -97,7 +102,8 @@ namespace tsuKeysAPIProject.Controllers
         }
 
         [Authorize(Policy = "TokenNotInBlackList")]
-        [HttpPut("RejectRequest")]
+        [HttpPut("reject")]
+        [ProducesResponseType(200)]
         [ProducesResponseType(typeof(Error), 400)]
         [ProducesResponseType(typeof(Error), 401)]
         [ProducesResponseType(typeof(Error), 500)]
@@ -114,7 +120,8 @@ namespace tsuKeysAPIProject.Controllers
         }
 
         [Authorize(Policy = "TokenNotInBlackList")]
-        [HttpDelete("DeleteRequest")]
+        [HttpDelete("delete")]
+        [ProducesResponseType(200)]
         [ProducesResponseType(typeof(Error), 400)]
         [ProducesResponseType(typeof(Error), 401)]
         [ProducesResponseType(typeof(Error), 500)]
