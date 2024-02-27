@@ -41,6 +41,7 @@ namespace tsuKeysAPIProject.Services
                 DateTime utcNow = DateTime.UtcNow;
                 TimeOnly currentTime = new TimeOnly(utcNow.Hour, utcNow.Minute, utcNow.Second);
                 DateOnly currentDay = new DateOnly(utcNow.Year,utcNow.Month, utcNow.Day);
+
                 if (requestTime == null)
                 {
                     throw new NotFoundException("Выбранное вами время не существует");
