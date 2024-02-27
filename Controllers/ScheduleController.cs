@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using tsuKeysAPIProject.AdditionalServices.Exceptions;
 using tsuKeysAPIProject.AdditionalServices.TokenHelpers;
 using tsuKeysAPIProject.DBContext.DTO.RolesDTO;
+using tsuKeysAPIProject.DBContext.DTO.ScheduleDTO;
+using tsuKeysAPIProject.DBContext.DTO.UserDTO;
 using tsuKeysAPIProject.DBContext.Models;
 using tsuKeysAPIProject.Services.IServices.IKeyService;
 using tsuKeysAPIProject.Services.IServices.IScheduleService;
@@ -21,6 +23,7 @@ namespace tsuKeysAPIProject.Controllers
         }
 
         [HttpGet("getSchedule")]
+        [ProducesResponseType(typeof(List<GetScheduleDTO>),200)]
         [ProducesResponseType(typeof(Error), 400)]
         [ProducesResponseType(typeof(Error), 500)]
         public async Task<IActionResult> getSchedule()

@@ -8,6 +8,7 @@ using tsuKeysAPIProject.Services;
 using tsuKeysAPIProject.Services.IServices.IUserService;
 using tsuKeysAPIProject.AdditionalServices.TokenHelpers;
 using tsuKeysAPIProject.Services.IServices.IRolesService;
+using tsuKeysAPIProject.Services.IServices.IScheduleService;
 
 namespace tsuKeysAPIProject.Controllers
 {
@@ -16,15 +17,18 @@ namespace tsuKeysAPIProject.Controllers
     {
         private readonly IUserService _userRepo;
         private readonly TokenInteraction _tokenHelper;
+        private readonly IScheduleService _scheduleService;
         private readonly AppDBContext _db;
 
-        public UserController(IUserService userRepo, AppDBContext db, TokenInteraction tokenHelper)
+        public UserController(IUserService userRepo, AppDBContext db, TokenInteraction tokenHelper, IScheduleService scheduleService)
         {
             _userRepo = userRepo;
             _db = db;
             _tokenHelper = tokenHelper;
+            _scheduleService = scheduleService;
         }
-        [HttpPost("Login")]
+
+        [HttpPost("login")]
         [ProducesResponseType(typeof(LoginResponseDTO), 200)]
         [ProducesResponseType(typeof(Error), 400)]
         [ProducesResponseType(typeof(Error), 500)]
@@ -85,7 +89,7 @@ namespace tsuKeysAPIProject.Controllers
 
         }
 
-        //TODO сделать получение всех пользователей с параметрами (поиск по имени и фильтрация по роли)
+        
 
     }
 }

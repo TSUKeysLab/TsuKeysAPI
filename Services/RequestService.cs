@@ -49,10 +49,6 @@ namespace tsuKeysAPIProject.Services
                 {
                     throw new NotFoundException("Выбранной вами аудитории не существует");
                 }
-                if (key.Owner != "Dean")
-                {
-                    throw new NotFoundException("Выбранная вами аудитория уже забронирована другим пользователем");
-                }
                 if (requestTime.StartTime <= currentTime && createRequestDTO.DateOfBooking == currentDay && key.Owner != "Dean")
                 {
                     throw new NotFoundException("Данная пара уже началась, вы не можете ее забронировать");
@@ -203,6 +199,7 @@ namespace tsuKeysAPIProject.Services
                         {
                             Id = u.Id,
                             DateOfBooking = u.DateOfBooking,
+                            Fullname = user.Fullname,
                             StartTime = u.StartTime,
                             EndTime = u.EndTime,
                             Status = u.Status,
@@ -277,6 +274,7 @@ namespace tsuKeysAPIProject.Services
                         {
                             Id = u.Id,
                             DateOfBooking = u.DateOfBooking,
+                            Fullname = user.Fullname,
                             StartTime = u.StartTime,
                             EndTime = u.EndTime,
                             Status = u.Status,

@@ -7,6 +7,8 @@ namespace tsuKeysAPIProject.DBContext.DTO.RequestDTO
         public Guid Id { get; set; }
 
         public DateOnly DateOfBooking { get; set; }
+        
+        public string Fullname { get; set; }
 
         public TimeOnly StartTime { get; set; }
 

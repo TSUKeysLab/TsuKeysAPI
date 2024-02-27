@@ -127,6 +127,7 @@ namespace tsuKeysAPIProject.Services
                     {
                         Users = allUsers.Select(u => new GetUserInformationResponseDTO
                         {
+                            UserId = u.Id,
                             Fullname = u.Fullname,
                             Role = u.Role,
                             Email = u.Email
