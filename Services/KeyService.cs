@@ -34,8 +34,6 @@ namespace tsuKeysAPIProject.Services
 
             var userRole = await _userInfoHelper.GetUserRole(userEmail);
 
-            Console.WriteLine(userRole != Roles.Administrator);
-
             if (userRole != Roles.Dean || userRole != Roles.Administrator)
             {
                 var classroomNumber = await _db.Keys
@@ -211,9 +209,9 @@ namespace tsuKeysAPIProject.Services
                     if (!keyRequestExist)
                     {
                         DateTime utcNow = DateTime.UtcNow;
-                        utcNow.AddHours(7);
+                        DateTime nowTomsk = utcNow.AddHours(7);
                         
-                        TimeOnly timeOnly = new TimeOnly(utcNow.Hour, utcNow.Minute, utcNow.Second);
+                        TimeOnly timeOnly = new TimeOnly(nowTomsk.Hour, nowTomsk.Minute, nowTomsk.Second);
 
 
                         var endOfClass = await _db.TimeSlots
@@ -396,12 +394,10 @@ namespace tsuKeysAPIProject.Services
             {
                 if (request.OwnerId == userId)
                 {
-                    DateTime utcNow = DateTime.UtcNow;
-                    utcNow.AddHours(7);
-                    TimeOnly currentTime = new TimeOnly(utcNow.Hour, utcNow.Minute, utcNow.Second);
-                    DateOnly currentDay = new DateOnly(utcNow.Year, utcNow.Month, utcNow.Day);
-
-                    System.Console.WriteLine(currentDay == request.DateOfBooking && currentTime >= request.StartTime && currentTime < request.EndTime);
+                    DateTime now = DateTime.UtcNow;
+                    DateTime nowTomsk = now.AddHours(7);
+                    TimeOnly currentTime = new TimeOnly(nowTomsk.Hour, nowTomsk.Minute, nowTomsk.Second);
+                    DateOnly currentDay = new DateOnly(nowTomsk.Year, nowTomsk.Month, nowTomsk.Day);
 
                     if (currentDay == request.DateOfBooking && currentTime >= request.StartTime && currentTime < request.EndTime)
                     {
@@ -421,40 +417,6 @@ namespace tsuKeysAPIProject.Services
             else
             {
                 throw new ForbiddenException("Ключ может получить только пользователь с ролью: Student, DeanTeacher, Teacher");
-            }
-        }
-
-        public async Task<List<UsersWithoutKeysDTO>> GetUsersWithoutKeys(string token)
-        {
-            var userEmail = _tokenHelper.GetUserEmailFromToken(token);
-            var userRole = await _userInfoHelper.GetUserRole(userEmail);
-
-            if (userRole != Roles.User)
-            {
-                var allUsers = await _db.Users.ToListAsync();
-                var allKeysUsers = await _db.Keys
-                    .Select(u => u.Owner)
-                    .ToListAsync();
-                var allUsersWithoutKeys = new List<UsersWithoutKeysDTO>();
-                foreach (var user in allUsers)
-                {
-                    if (!allKeysUsers.Contains(user.Email))
-                    {
-                        var userWithoutKey = new UsersWithoutKeysDTO();
-
-                        userWithoutKey.UserEmail = user.Email;
-                        userWithoutKey.UserFullName = user.Fullname;
-                        userWithoutKey.UserRole = user.Role;
-                        userWithoutKey.Gender = user.Gender;
-
-                        allUsersWithoutKeys.Add(userWithoutKey);
-                    }
-                }
-                return allUsersWithoutKeys;
-            }
-            else
-            {
-                throw new ForbiddenException("Роль пользователя не подходит для этого");
             }
         }
         public async Task DeleteKeyRequest(string token, Guid requestId)
@@ -483,5 +445,74 @@ namespace tsuKeysAPIProject.Services
                     throw new BadRequestException("Заявку уже обработана");
                 }
             }
+
+        public async Task<List<UserKeysDTO>> GetUserKeys(string token)
+        {
+            var userEmail = _tokenHelper.GetUserEmailFromToken(token);
+
+            DateTime now = DateTime.UtcNow;
+            DateTime nowTomsk = now.AddHours(7);
+            TimeOnly currentTime = new TimeOnly(nowTomsk.Hour, nowTomsk.Minute, nowTomsk.Second);
+
+            var endOfClassTime = await _db.TimeSlots
+                .Where(u => u.StartTime <= currentTime && u.EndTime >= currentTime)
+                .FirstOrDefaultAsync();
+            
+            Console.WriteLine(currentTime);
+                
+            if (endOfClassTime == null)
+            {
+                throw new BadRequestException("Такого времени в расписании нет");
+            }
+
+            var userKeys = await _db.Keys
+                .Where(u => u.Owner == userEmail)
+                .ToListAsync();
+
+            var userKeysDTO = new List<UserKeysDTO>();
+
+            userKeys.ForEach(u => { 
+                UserKeysDTO key = new UserKeysDTO();
+                key.ClassroomNumber = u.ClassroomNumber;
+                key.TimeToEndUsage = endOfClassTime.EndTime;
+
+                userKeysDTO.Add(key);
+            });
+
+            Console.WriteLine(userKeysDTO);
+
+            return userKeysDTO; 
         }
+
+        public async Task<List<UsersForTransferDTO>> GetUsersForTransfer(string token)
+        {
+
+            var userEmail = _tokenHelper.GetUserEmailFromToken(token);
+
+            var userRole = await _userInfoHelper.GetUserRole(userEmail);
+
+            if (userRole == Roles.User)
+            {
+                throw new ForbiddenException("У вас нет для этого прав");
+            }
+
+            var usersForTransfer = await _db.Users
+                .Where(u => u.Role != Roles.Administrator && u.Role != Roles.Dean && u.Role != Roles.User && u.Email != userEmail)
+                .ToListAsync();
+
+            var users = new List<UsersForTransferDTO>();
+
+            usersForTransfer.ForEach(u =>
+            {
+                var user = new UsersForTransferDTO();
+                user.Role = u.Role;
+                user.UserEmail = u.Email;
+                user.FullName = u.Fullname;
+
+                users.Add(user);
+            });
+            
+            return users;
+        }
+    }
 }

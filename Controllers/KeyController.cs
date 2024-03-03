@@ -102,25 +102,6 @@ namespace tsuKeysAPIProject.Controllers
             return Ok(allKeys);
         }
 
-        [HttpGet("users")]
-        [Authorize(Policy = "TokenNotInBlackList")]
-        [ProducesResponseType(typeof(List<UsersWithoutKeysDTO>), 200)]
-        [ProducesResponseType(typeof(Error), 400)]
-        [ProducesResponseType(typeof(Error), 401)]
-        [ProducesResponseType(typeof(Error), 403)]
-        [ProducesResponseType(typeof(Error), 500)]
-        public async Task<IActionResult> GetUsersWithoutKeys()
-        {
-            string token = _tokenHelper.GetTokenFromHeader();
-            if (token == null)
-            {
-                throw new UnauthorizedException("Данный пользователь не авторизован");
-            }
-
-            var usersWithoutKeys = await _keyService.GetUsersWithoutKeys(token);
-            return Ok(usersWithoutKeys);
-        }
-
         [HttpGet("requests")]
         [Authorize(Policy = "TokenNotInBlackList")]
         [ProducesResponseType(typeof(List<KeyRequestResponseDTO>), 200)]
@@ -137,6 +118,43 @@ namespace tsuKeysAPIProject.Controllers
 
             var keyRequests = await _keyService.GetAllRequests(userStatus, token);
             return Ok(keyRequests);
+        }
+        
+        [HttpGet("owned")]
+        [Authorize(Policy = "TokenNotInBlackList")]
+        [ProducesResponseType(typeof(List<UserKeysDTO>), 200)]
+        [ProducesResponseType(typeof(Error), 400)]
+        [ProducesResponseType(typeof(Error), 401)]
+        [ProducesResponseType(typeof(Error), 403)]
+        [ProducesResponseType(typeof(Error), 500)]
+        public async Task<IActionResult> GetUserKeys()
+        {
+            string token = _tokenHelper.GetTokenFromHeader();
+            if (token == null)
+            {
+                throw new UnauthorizedException("Данный пользователь не авторизован");
+            }
+    
+            var userKeys = await _keyService.GetUserKeys(token);
+            return Ok(userKeys);
+        }
+
+        [HttpGet("request/users")]
+        [Authorize(Policy = "TokenNotInBlackList")]
+        [ProducesResponseType(typeof(List<UserKeysDTO>), 200)]
+        [ProducesResponseType(typeof(Error), 400)]
+        [ProducesResponseType(typeof(Error), 401)]
+        [ProducesResponseType(typeof(Error), 403)]
+        [ProducesResponseType(typeof(Error), 500)]
+        public async Task<IActionResult> GetUsersForTransfer()
+        {
+            string token = _tokenHelper.GetTokenFromHeader();
+            if (token == null)
+            {
+                throw new UnauthorizedException("Данный пользователь не авторизован");
+            }
+            var usersForTransfer = await _keyService.GetUsersForTransfer(token);
+            return Ok(usersForTransfer);
         }
 
         [HttpPut("accept/request/{id}")]

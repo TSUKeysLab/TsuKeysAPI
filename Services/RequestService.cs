@@ -40,9 +40,9 @@ namespace tsuKeysAPIProject.Services
                 var key = await _db.Keys.FirstOrDefaultAsync(k => k.ClassroomNumber == createRequestDTO.ClassroomNumber);
 
                 DateTime utcNow = DateTime.UtcNow;
-                utcNow.AddHours(7);
-                TimeOnly currentTime = new TimeOnly(utcNow.Hour, utcNow.Minute, utcNow.Second);
-                DateOnly currentDay = new DateOnly(utcNow.Year, utcNow.Month, utcNow.Day);
+                DateTime utcNowTomsk = utcNow.AddHours(7);
+                TimeOnly currentTime = new TimeOnly(utcNowTomsk.Hour, utcNowTomsk.Minute, utcNowTomsk.Second);
+                DateOnly currentDay = new DateOnly(utcNowTomsk.Year, utcNowTomsk.Month, utcNowTomsk.Day);
 
                 if (requestTime == null)
                 {
