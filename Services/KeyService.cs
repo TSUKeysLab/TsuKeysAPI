@@ -69,11 +69,16 @@ namespace tsuKeysAPIProject.Services
 
             var userRole = await _userInfoHelper.GetUserRole(userEmail);
 
-            var request = await _db.KeyRequest.FirstOrDefaultAsync(u => u.KeyRecipient == userEmail && u.Status == KeyRequestStatus.Pending);
+            var request = await _db.KeyRequest.FirstOrDefaultAsync(u => u.KeyRecipient == userEmail && u.Status == KeyRequestStatus.Pending && u.Id == keyRequestId);    
 
             if (request == null)
             {
                 throw new NotFoundException("Такой заявки не существует");
+            }
+
+            if (status == KeyRequestStatus.Rejected && request.KeyRecipient == "Dean")
+            {
+                throw new BadRequestException("Деканат не может отклонить принятие ключа");
             }
 
             if (userRole != Roles.User)
@@ -304,6 +309,7 @@ namespace tsuKeysAPIProject.Services
             {
                 var requestDto = new KeyRequestResponseDTO
                 {
+                    RequestId = request.Id,
                     ClassroomNumber = request.ClassroomNumber,
                     KeyRecipientEmail = request.KeyRecipient,
                     KeyOwnerEmail = request.KeyOwner,
