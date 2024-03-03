@@ -94,7 +94,7 @@ namespace tsuKeysAPIProject.Services
 
                     if (!string.IsNullOrEmpty(fullname))
                     {
-                        allUsers = allUsers.Where(aU => aU.Fullname.Contains(fullname));
+                        allUsers = allUsers.Where(aU => aU.Fullname.ToLower().Contains(fullname.ToLower()));
                     }
 
                     if (page <= 0)

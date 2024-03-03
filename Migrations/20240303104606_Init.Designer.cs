@@ -12,8 +12,8 @@ using tsuKeysAPIProject.DBContext;
 namespace tsuKeysAPIProject.Migrations
 {
     [DbContext(typeof(AppDBContext))]
-    [Migration("20240227053424_init")]
-    partial class init
+    [Migration("20240303104606_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
