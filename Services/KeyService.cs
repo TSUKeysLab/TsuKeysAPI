@@ -123,7 +123,32 @@ namespace tsuKeysAPIProject.Services
 
         public async Task<List<KeyInfoDTO>> GetAllKeys(DateOnly? dateOfRequest, int? timeId, string token, KeyGettingStatus gettingStatus)
         {
+
+            DateTime utcNow = DateTime.UtcNow;
+            DateTime nowTomsk = utcNow.AddHours(7);
+            TimeOnly timeOnly = new TimeOnly(nowTomsk.Hour, nowTomsk.Minute, nowTomsk.Second);
+
+            DateOnly dateOnly = DateOnly.FromDateTime(nowTomsk);
+
+            var endTime = await _db.TimeSlots
+                .Where(u => u.SlotNumber == timeId)
+                .Select(u => u.EndTime)
+                .FirstOrDefaultAsync();
+
+          //  Console.WriteLine(endTime.ToString(), timeOnly);
+
+            if (dateOfRequest < dateOnly || timeOnly > endTime)
+            {
+                throw new BadRequestException("Нельзя сделать заявку в прошлое");
+            }
+
             var userEmail = _tokenHelper.GetUserEmailFromToken(token);
+
+            var userId = await _db.Users
+                .Where(u => u.Email == userEmail)
+                .Select(u => u.Id)
+                .FirstOrDefaultAsync();
+
             var userRole = await _userInfoHelper.GetUserRole(userEmail);
 
             if (userRole != Roles.User)
@@ -145,7 +170,8 @@ namespace tsuKeysAPIProject.Services
                     }
 
                     var notAvailableClassrooms = await _db.Requests
-                    .Where(u => u.TimeId == timeId && u.Status == RequestStatus.Approved && u.DateOfBooking == dateOfRequest)
+                    .Where(u => u.TimeId == timeId && u.Status == RequestStatus.Approved && u.DateOfBooking == dateOfRequest
+                        || (u.OwnerId == userId && u.TimeId == timeId && u.DateOfBooking == dateOfRequest))
                     .Select(u => u.ClassroomNumber)
                     .ToListAsync();
 
@@ -155,6 +181,7 @@ namespace tsuKeysAPIProject.Services
                         {
                             var keyInfoDTO = new KeyInfoDTO
                             {
+                                Owner = "Dean",
                                 ClassroomNumber = key.ClassroomNumber,
                             };
                             keysForRequest.Add(keyInfoDTO);
