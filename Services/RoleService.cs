@@ -37,6 +37,10 @@ namespace tsuKeysAPIProject.Services
 
                 if (user != null && secondUser != null)
                 {
+                    if(user.Id == secondUser.Id)
+                    {
+                        throw new ForbiddenException("Вы не можете менять роль самому себе");
+                    }
                     if (user.Role == Roles.Administrator)
                     {
                         secondUser.Role = grantRole.Role;
