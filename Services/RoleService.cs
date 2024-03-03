@@ -37,6 +37,10 @@ namespace tsuKeysAPIProject.Services
 
                 if (user != null && secondUser != null)
                 {
+                    if(user.Id == secondUser.Id)
+                    {
+                        throw new ForbiddenException("Вы не можете менять роль самому себе");
+                    }
                     if (user.Role == Roles.Administrator)
                     {
                         secondUser.Role = grantRole.Role;
@@ -90,7 +94,7 @@ namespace tsuKeysAPIProject.Services
 
                     if (!string.IsNullOrEmpty(fullname))
                     {
-                        allUsers = allUsers.Where(aU => aU.Fullname.Contains(fullname));
+                        allUsers = allUsers.Where(aU => aU.Fullname.ToLower().Contains(fullname.ToLower()));
                     }
 
                     if (page <= 0)
