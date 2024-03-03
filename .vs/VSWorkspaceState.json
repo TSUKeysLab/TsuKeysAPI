@@ -2,14 +2,14 @@
   "ExpandedNodes": [
     "",
     "\\AdditionalServices",
+    "\\AdditionalServices\\Validators",
     "\\Controllers",
     "\\DBContext",
     "\\DBContext\\DTO",
     "\\DBContext\\DTO\\KeyDTO",
     "\\DBContext\\Models",
-    "\\DBContext\\Models\\Enums",
     "\\Services"
   ],
-  "SelectedNode": "\\DBContext\\Models\\Enums\\RequestStatus.cs",
+  "SelectedNode": "\\AdditionalServices\\Validators\\PasswordValidator.cs",
   "PreviewInSolutionExplorer": false
 }
