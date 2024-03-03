@@ -425,8 +425,9 @@ namespace tsuKeysAPIProject.Services
                     DateTime nowTomsk = now.AddHours(7);
                     TimeOnly currentTime = new TimeOnly(nowTomsk.Hour, nowTomsk.Minute, nowTomsk.Second);
                     DateOnly currentDay = new DateOnly(nowTomsk.Year, nowTomsk.Month, nowTomsk.Day);
+                    TimeOnly timeForKeyTaking = currentTime.AddMinutes(7);
 
-                    if (currentDay == request.DateOfBooking && currentTime >= request.StartTime && currentTime < request.EndTime)
+                    if (currentDay == request.DateOfBooking && timeForKeyTaking >= request.StartTime && currentTime < request.EndTime)
                     {
                         key.Owner = userEmail;
                         await _db.SaveChangesAsync();
