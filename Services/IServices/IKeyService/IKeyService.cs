@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using tsuKeysAPIProject.DBContext.DTO.KeyDTO;
+using tsuKeysAPIProject.DBContext.DTO.RolesDTO;
 using tsuKeysAPIProject.DBContext.Models.Enums;
 
 namespace tsuKeysAPIProject.Services.IServices.IKeyService
@@ -16,6 +17,6 @@ namespace tsuKeysAPIProject.Services.IServices.IKeyService
         public Task ConfirmReceiptFromDean(Guid requestId, string token);
         public Task DeleteKeyRequest(string token, Guid requestId);
         public Task<List<UserKeysDTO>> GetUserKeys(string token);
-        public Task<List<UsersForTransferDTO>> GetUsersForTransfer(string token);
+        public Task<UsersForTransferDTO> GetUsersForTransfer(string token, string fullName);
     }
 }

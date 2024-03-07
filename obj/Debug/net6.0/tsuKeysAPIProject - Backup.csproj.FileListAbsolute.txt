@@ -1,0 +1,64 @@
+C:\Users\Артем\source\repos\TsuKeysAPI\bin\Debug\net6.0\appsettings.Development.json
+C:\Users\Артем\source\repos\TsuKeysAPI\bin\Debug\net6.0\appsettings.json
+C:\Users\Артем\source\repos\TsuKeysAPI\bin\Debug\net6.0\tsuKeysAPIProject - Backup.exe
+C:\Users\Артем\source\repos\TsuKeysAPI\bin\Debug\net6.0\tsuKeysAPIProject - Backup.deps.json
+C:\Users\Артем\source\repos\TsuKeysAPI\bin\Debug\net6.0\tsuKeysAPIProject - Backup.runtimeconfig.json
+C:\Users\Артем\source\repos\TsuKeysAPI\bin\Debug\net6.0\tsuKeysAPIProject - Backup.dll
+C:\Users\Артем\source\repos\TsuKeysAPI\bin\Debug\net6.0\tsuKeysAPIProject - Backup.pdb
+C:\Users\Артем\source\repos\TsuKeysAPI\bin\Debug\net6.0\BCrypt.Net-Next.dll
+C:\Users\Артем\source\repos\TsuKeysAPI\bin\Debug\net6.0\Humanizer.dll
+C:\Users\Артем\source\repos\TsuKeysAPI\bin\Debug\net6.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+C:\Users\Артем\source\repos\TsuKeysAPI\bin\Debug\net6.0\Microsoft.EntityFrameworkCore.dll
+C:\Users\Артем\source\repos\TsuKeysAPI\bin\Debug\net6.0\Microsoft.EntityFrameworkCore.Abstractions.dll
+C:\Users\Артем\source\repos\TsuKeysAPI\bin\Debug\net6.0\Microsoft.EntityFrameworkCore.Design.dll
+C:\Users\Артем\source\repos\TsuKeysAPI\bin\Debug\net6.0\Microsoft.EntityFrameworkCore.Relational.dll
+C:\Users\Артем\source\repos\TsuKeysAPI\bin\Debug\net6.0\Microsoft.Extensions.Caching.Abstractions.dll
+C:\Users\Артем\source\repos\TsuKeysAPI\bin\Debug\net6.0\Microsoft.Extensions.Caching.Memory.dll
+C:\Users\Артем\source\repos\TsuKeysAPI\bin\Debug\net6.0\Microsoft.Extensions.Configuration.Abstractions.dll
+C:\Users\Артем\source\repos\TsuKeysAPI\bin\Debug\net6.0\Microsoft.Extensions.DependencyInjection.dll
+C:\Users\Артем\source\repos\TsuKeysAPI\bin\Debug\net6.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll
+C:\Users\Артем\source\repos\TsuKeysAPI\bin\Debug\net6.0\Microsoft.Extensions.DependencyModel.dll
+C:\Users\Артем\source\repos\TsuKeysAPI\bin\Debug\net6.0\Microsoft.Extensions.Logging.dll
+C:\Users\Артем\source\repos\TsuKeysAPI\bin\Debug\net6.0\Microsoft.Extensions.Logging.Abstractions.dll
+C:\Users\Артем\source\repos\TsuKeysAPI\bin\Debug\net6.0\Microsoft.Extensions.Options.dll
+C:\Users\Артем\source\repos\TsuKeysAPI\bin\Debug\net6.0\Microsoft.Extensions.Primitives.dll
+C:\Users\Артем\source\repos\TsuKeysAPI\bin\Debug\net6.0\Microsoft.IdentityModel.Abstractions.dll
+C:\Users\Артем\source\repos\TsuKeysAPI\bin\Debug\net6.0\Microsoft.IdentityModel.JsonWebTokens.dll
+C:\Users\Артем\source\repos\TsuKeysAPI\bin\Debug\net6.0\Microsoft.IdentityModel.Logging.dll
+C:\Users\Артем\source\repos\TsuKeysAPI\bin\Debug\net6.0\Microsoft.IdentityModel.Protocols.dll
+C:\Users\Артем\source\repos\TsuKeysAPI\bin\Debug\net6.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+C:\Users\Артем\source\repos\TsuKeysAPI\bin\Debug\net6.0\Microsoft.IdentityModel.Tokens.dll
+C:\Users\Артем\source\repos\TsuKeysAPI\bin\Debug\net6.0\Microsoft.OpenApi.dll
+C:\Users\Артем\source\repos\TsuKeysAPI\bin\Debug\net6.0\Mono.TextTemplating.dll
+C:\Users\Артем\source\repos\TsuKeysAPI\bin\Debug\net6.0\Npgsql.dll
+C:\Users\Артем\source\repos\TsuKeysAPI\bin\Debug\net6.0\Npgsql.EntityFrameworkCore.PostgreSQL.dll
+C:\Users\Артем\source\repos\TsuKeysAPI\bin\Debug\net6.0\Swashbuckle.AspNetCore.Swagger.dll
+C:\Users\Артем\source\repos\TsuKeysAPI\bin\Debug\net6.0\Swashbuckle.AspNetCore.SwaggerGen.dll
+C:\Users\Артем\source\repos\TsuKeysAPI\bin\Debug\net6.0\Swashbuckle.AspNetCore.SwaggerUI.dll
+C:\Users\Артем\source\repos\TsuKeysAPI\bin\Debug\net6.0\System.CodeDom.dll
+C:\Users\Артем\source\repos\TsuKeysAPI\bin\Debug\net6.0\System.IdentityModel.Tokens.Jwt.dll
+C:\Users\Артем\source\repos\TsuKeysAPI\bin\Debug\net6.0\System.Text.Encodings.Web.dll
+C:\Users\Артем\source\repos\TsuKeysAPI\bin\Debug\net6.0\System.Text.Json.dll
+C:\Users\Артем\source\repos\TsuKeysAPI\bin\Debug\net6.0\runtimes\browser\lib\net6.0\System.Text.Encodings.Web.dll
+C:\Users\Артем\source\repos\TsuKeysAPI\obj\Debug\net6.0\tsuKeysAPIProject - Backup.csproj.AssemblyReference.cache
+C:\Users\Артем\source\repos\TsuKeysAPI\obj\Debug\net6.0\tsuKeysAPIProject - Backup.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Артем\source\repos\TsuKeysAPI\obj\Debug\net6.0\tsuKeysAPIProject - Backup.AssemblyInfoInputs.cache
+C:\Users\Артем\source\repos\TsuKeysAPI\obj\Debug\net6.0\tsuKeysAPIProject - Backup.AssemblyInfo.cs
+C:\Users\Артем\source\repos\TsuKeysAPI\obj\Debug\net6.0\tsuKeysAPIProject - Backup.csproj.CoreCompileInputs.cache
+C:\Users\Артем\source\repos\TsuKeysAPI\obj\Debug\net6.0\tsuKeysAPIProject - Backup.MvcApplicationPartsAssemblyInfo.cs
+C:\Users\Артем\source\repos\TsuKeysAPI\obj\Debug\net6.0\tsuKeysAPIProject - Backup.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\Артем\source\repos\TsuKeysAPI\obj\Debug\net6.0\tsuKeysAPIProject - Backup.sourcelink.json
+C:\Users\Артем\source\repos\TsuKeysAPI\obj\Debug\net6.0\staticwebassets.build.json
+C:\Users\Артем\source\repos\TsuKeysAPI\obj\Debug\net6.0\staticwebassets.development.json
+C:\Users\Артем\source\repos\TsuKeysAPI\obj\Debug\net6.0\staticwebassets\msbuild.tsuKeysAPIProject - Backup.Microsoft.AspNetCore.StaticWebAssets.props
+C:\Users\Артем\source\repos\TsuKeysAPI\obj\Debug\net6.0\staticwebassets\msbuild.build.tsuKeysAPIProject - Backup.props
+C:\Users\Артем\source\repos\TsuKeysAPI\obj\Debug\net6.0\staticwebassets\msbuild.buildMultiTargeting.tsuKeysAPIProject - Backup.props
+C:\Users\Артем\source\repos\TsuKeysAPI\obj\Debug\net6.0\staticwebassets\msbuild.buildTransitive.tsuKeysAPIProject - Backup.props
+C:\Users\Артем\source\repos\TsuKeysAPI\obj\Debug\net6.0\staticwebassets.pack.json
+C:\Users\Артем\source\repos\TsuKeysAPI\obj\Debug\net6.0\scopedcss\bundle\tsuKeysAPIProject - Backup.styles.css
+C:\Users\Артем\source\repos\TsuKeysAPI\obj\Debug\net6.0\tsuKeysAPIProject - Backup.csproj.CopyComplete
+C:\Users\Артем\source\repos\TsuKeysAPI\obj\Debug\net6.0\tsuKeysAPIProject - Backup.dll
+C:\Users\Артем\source\repos\TsuKeysAPI\obj\Debug\net6.0\refint\tsuKeysAPIProject - Backup.dll
+C:\Users\Артем\source\repos\TsuKeysAPI\obj\Debug\net6.0\tsuKeysAPIProject - Backup.pdb
+C:\Users\Артем\source\repos\TsuKeysAPI\obj\Debug\net6.0\tsuKeysAPIProject - Backup.genruntimeconfig.cache
+C:\Users\Артем\source\repos\TsuKeysAPI\obj\Debug\net6.0\ref\tsuKeysAPIProject - Backup.dll

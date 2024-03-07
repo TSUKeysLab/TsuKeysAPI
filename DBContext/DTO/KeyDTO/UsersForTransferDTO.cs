@@ -1,12 +1,10 @@
-﻿using tsuKeysAPIProject.DBContext.Models.Enums;
+﻿using tsuKeysAPIProject.DBContext.DTO.RolesDTO;
+using tsuKeysAPIProject.DBContext.Models.Enums;
 
 namespace tsuKeysAPIProject.DBContext.DTO.KeyDTO
 {
     public class UsersForTransferDTO
     {
-        public string UserEmail { get; set; }
-        public string FullName { get; set; }
-        public Roles Role { get; set; }
-
+        public IQueryable<GetUserInformationResponseDTO> Users { get; set; }
     }
 }

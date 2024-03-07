@@ -141,19 +141,19 @@ namespace tsuKeysAPIProject.Controllers
 
         [HttpGet("request/users")]
         [Authorize(Policy = "TokenNotInBlackList")]
-        [ProducesResponseType(typeof(List<UserKeysDTO>), 200)]
+        [ProducesResponseType(typeof(List<UsersForTransferDTO>), 200)]
         [ProducesResponseType(typeof(Error), 400)]
         [ProducesResponseType(typeof(Error), 401)]
         [ProducesResponseType(typeof(Error), 403)]
         [ProducesResponseType(typeof(Error), 500)]
-        public async Task<IActionResult> GetUsersForTransfer()
+        public async Task<IActionResult> GetUsersForTransfer([FromQuery] string fullName)
         {
             string token = _tokenHelper.GetTokenFromHeader();
             if (token == null)
             {
                 throw new UnauthorizedException("Данный пользователь не авторизован");
             }
-            var usersForTransfer = await _keyService.GetUsersForTransfer(token);
+            var usersForTransfer = await _keyService.GetUsersForTransfer(token, fullName);
             return Ok(usersForTransfer);
         }
 

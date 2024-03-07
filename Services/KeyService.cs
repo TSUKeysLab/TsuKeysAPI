@@ -1,13 +1,11 @@
 ﻿
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using System.Security.Cryptography.Xml;
 using tsuKeysAPIProject.AdditionalServices.Exceptions;
 using tsuKeysAPIProject.AdditionalServices.TokenHelpers;
 using tsuKeysAPIProject.AdditionalServices.UserInfoHelper;
 using tsuKeysAPIProject.DBContext;
 using tsuKeysAPIProject.DBContext.DTO.KeyDTO;
+using tsuKeysAPIProject.DBContext.DTO.RolesDTO;
 using tsuKeysAPIProject.DBContext.Models;
 using tsuKeysAPIProject.DBContext.Models.Enums;
 using tsuKeysAPIProject.Services.IServices.IKeyService;
@@ -69,7 +67,9 @@ namespace tsuKeysAPIProject.Services
 
             var userRole = await _userInfoHelper.GetUserRole(userEmail);
 
-            var request = await _db.KeyRequest.FirstOrDefaultAsync(u => u.KeyRecipient == userEmail && u.Status == KeyRequestStatus.Pending && u.Id == keyRequestId);    
+            var request = await _db.KeyRequest.FirstOrDefaultAsync(u => 
+            (u.KeyRecipient == userEmail || (u.KeyRecipient == "Dean" && (userRole == Roles.Dean || userRole == Roles.DeanTeacher || userRole == Roles.Administrator)))
+            && u.Status == KeyRequestStatus.Pending && u.Id == keyRequestId);    
 
             if (request == null)
             {
@@ -140,9 +140,7 @@ namespace tsuKeysAPIProject.Services
                 .Select(u => u.EndTime)
                 .FirstOrDefaultAsync();
 
-          //  Console.WriteLine(endTime.ToString(), timeOnly);
-
-            if (dateOfRequest < dateOnly || timeOnly > endTime)
+            if (dateOfRequest < dateOnly && (timeOnly > endTime && dateOfRequest == dateOnly) && gettingStatus == KeyGettingStatus.AvailableKeys)
             {
                 throw new BadRequestException("Нельзя сделать заявку в прошлое");
             }
@@ -225,7 +223,8 @@ namespace tsuKeysAPIProject.Services
             var recepientRole = await _userInfoHelper.GetUserRole(keyRequestDTO.KeyRecipient);
 
             if ((ownerRole == Roles.Teacher || ownerRole == Roles.Student || ownerRole == Roles.DeanTeacher)
-                && (recepientRole == Roles.Teacher || recepientRole == Roles.Student || recepientRole == Roles.DeanTeacher))
+                && (recepientRole == Roles.Teacher || recepientRole == Roles.Student
+                || recepientRole == Roles.DeanTeacher || keyRequestDTO.KeyRecipient == "Dean"))
             {
                 var keyOwner = _db.Keys
                     .Where(u => u.ClassroomNumber == keyRequestDTO.ClassroomNumber)
@@ -291,11 +290,17 @@ namespace tsuKeysAPIProject.Services
             List<KeyRequest> userRequests;
             if (userStatus == RequestUserStatus.Owner)
             {
-                userRequests = await _db.KeyRequest.Where(u => u.KeyOwner == userEmail).ToListAsync();
+                userRequests = await _db.KeyRequest
+                    .Where(u => u.KeyOwner == userEmail
+                    && (u.Status == KeyRequestStatus.Pending || u.Status == KeyRequestStatus.Approved || u.Status == KeyRequestStatus.Rejected))
+                    .ToListAsync();
             }
             else if (userStatus == RequestUserStatus.Recipient)
             {
-                userRequests = await _db.KeyRequest.Where(u => u.KeyRecipient == userEmail).ToListAsync();
+                userRequests = await _db.KeyRequest
+                    .Where(u => u.KeyRecipient == userEmail
+                    && (u.Status == KeyRequestStatus.Pending || u.Status == KeyRequestStatus.Approved || u.Status == KeyRequestStatus.Rejected))
+                    .ToListAsync();
             }
             else
             {
@@ -485,20 +490,14 @@ namespace tsuKeysAPIProject.Services
             var userEmail = _tokenHelper.GetUserEmailFromToken(token);
 
             DateTime now = DateTime.UtcNow;
-            DateTime nowTomsk = now.AddHours(7);
+            DateTime nowTomsk = now.AddHours(20);
             TimeOnly currentTime = new TimeOnly(nowTomsk.Hour, nowTomsk.Minute, nowTomsk.Second);
-
+            Console.WriteLine(currentTime.ToString());
             var endOfClassTime = await _db.TimeSlots
                 .Where(u => u.StartTime <= currentTime && u.EndTime >= currentTime)
+                .Select(u => u.EndTime)
                 .FirstOrDefaultAsync();
             
-            Console.WriteLine(currentTime);
-                
-            if (endOfClassTime == null)
-            {
-                throw new BadRequestException("Такого времени в расписании нет");
-            }
-
             var userKeys = await _db.Keys
                 .Where(u => u.Owner == userEmail)
                 .ToListAsync();
@@ -508,45 +507,57 @@ namespace tsuKeysAPIProject.Services
             userKeys.ForEach(u => { 
                 UserKeysDTO key = new UserKeysDTO();
                 key.ClassroomNumber = u.ClassroomNumber;
-                key.TimeToEndUsage = endOfClassTime.EndTime;
+                key.TimeToEndUsage = endOfClassTime;
 
                 userKeysDTO.Add(key);
             });
 
-            Console.WriteLine(userKeysDTO);
 
             return userKeysDTO; 
         }
 
-        public async Task<List<UsersForTransferDTO>> GetUsersForTransfer(string token)
+        public async Task<UsersForTransferDTO> GetUsersForTransfer(string token, string fullName)
         {
-
-            var userEmail = _tokenHelper.GetUserEmailFromToken(token);
-
-            var userRole = await _userInfoHelper.GetUserRole(userEmail);
-
-            if (userRole == Roles.User)
-            {
-                throw new ForbiddenException("У вас нет для этого прав");
-            }
-
-            var usersForTransfer = await _db.Users
-                .Where(u => u.Role != Roles.Administrator && u.Role != Roles.Dean && u.Role != Roles.User && u.Email != userEmail)
-                .ToListAsync();
-
-            var users = new List<UsersForTransferDTO>();
-
-            usersForTransfer.ForEach(u =>
-            {
-                var user = new UsersForTransferDTO();
-                user.Role = u.Role;
-                user.UserEmail = u.Email;
-                user.FullName = u.Fullname;
-
-                users.Add(user);
-            });
             
-            return users;
+            string userEmail = _tokenHelper.GetUserEmailFromToken(token);
+            var userRole = await _userInfoHelper.GetUserRole(userEmail);
+            var allUsers = _db.Users
+                .Where(u => u.Email != userEmail)
+                .AsQueryable();
+
+            if (userRole != Roles.User && userRole != Roles.Dean && userRole != Roles.Administrator)
+                {
+                    if (!string.IsNullOrEmpty(userEmail))
+                    {
+                        if (!string.IsNullOrEmpty(fullName))
+                        {
+                            allUsers = allUsers.Where(aU => aU.Fullname.ToLower().Contains(fullName.ToLower())
+                            && aU.Role != Roles.Administrator && aU.Role != Roles.User && aU.Role != Roles.Dean);
+                        }
+
+                        var usersDto = new UsersForTransferDTO
+                        {
+                            Users = allUsers.Select(u => new GetUserInformationResponseDTO
+                            {
+                                UserId = u.Id,
+                                Fullname = u.Fullname,
+                                Role = u.Role,
+                                Email = u.Email
+                            }),
+                        };
+
+                        return usersDto;
+                    }
+                    else
+                    {
+                        throw new BadRequestException("Вам недоступна данная функция");
+                    
+                    }
+                }
+                else
+                {
+                    throw new ForbiddenException("Вам недоступна данная функция");
+                }
         }
     }
 }
