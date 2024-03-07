@@ -140,7 +140,10 @@ namespace tsuKeysAPIProject.Services
                 .Select(u => u.EndTime)
                 .FirstOrDefaultAsync();
 
-            if (dateOfRequest < dateOnly && (timeOnly > endTime && dateOfRequest == dateOnly) && gettingStatus == KeyGettingStatus.AvailableKeys)
+            Console.WriteLine(dateOfRequest < dateOnly);
+            Console.WriteLine(timeOnly > endTime && dateOfRequest == dateOnly);
+
+            if ((dateOfRequest < dateOnly || (timeOnly > endTime && dateOfRequest == dateOnly)) && gettingStatus == KeyGettingStatus.AvailableKeys)
             {
                 throw new BadRequestException("Нельзя сделать заявку в прошлое");
             }
