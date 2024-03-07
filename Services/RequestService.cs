@@ -77,15 +77,16 @@ namespace tsuKeysAPIProject.Services
                     Request requestAll = new Request()
                     {
                         ClassroomNumber = createRequestDTO.ClassroomNumber,
-                        RequestOwner = user.Name,
+                        RequestOwner = user.Fullname,
                         DateOfBooking = createRequestDTO.DateOfBooking,
-                        DateOfSent = utcNow,
+                        DateOfSent = utcNowTomsk,
                         StartTime = requestTime.StartTime,
                         EndTime = requestTime.EndTime,
                         Status = RequestStatus.Rejected,
                         Id = Guid.NewGuid(),
                         TimeId = createRequestDTO.TimeId,
-                        OwnerId = user.Id
+                        OwnerId = user.Id,
+                        ownerRole = user.Role
                     };
                     _db.Requests.Add(requestAll);
                     await _db.SaveChangesAsync();
@@ -98,15 +99,16 @@ namespace tsuKeysAPIProject.Services
                     Request requestTeacher = new Request()
                     {
                         ClassroomNumber = createRequestDTO.ClassroomNumber,
-                        RequestOwner = user.Name,
+                        RequestOwner = user.Fullname,
                         DateOfBooking = createRequestDTO.DateOfBooking,
-                        DateOfSent = utcNow,
+                        DateOfSent = utcNowTomsk,
                         StartTime = requestTime.StartTime,
                         EndTime = requestTime.EndTime,
                         Status = RequestStatus.Approved,
                         Id = Guid.NewGuid(),
                         TimeId = createRequestDTO.TimeId,
-                        OwnerId = user.Id
+                        OwnerId = user.Id,
+                        ownerRole = user.Role
                     };
                     _db.Requests.Add(requestTeacher);
                     await _db.SaveChangesAsync();
@@ -116,9 +118,9 @@ namespace tsuKeysAPIProject.Services
                     Request request = new Request()
                     {
                         ClassroomNumber = createRequestDTO.ClassroomNumber,
-                        RequestOwner = user.Name,
+                        RequestOwner = user.Fullname,
                         DateOfBooking = createRequestDTO.DateOfBooking,
-                        DateOfSent = utcNow,
+                        DateOfSent = utcNowTomsk,
                         StartTime = requestTime.StartTime,
                         EndTime = requestTime.EndTime,
                         Status = RequestStatus.Pending,
@@ -202,7 +204,7 @@ namespace tsuKeysAPIProject.Services
                         {
                             Id = u.Id,
                             DateOfBooking = u.DateOfBooking,
-                            Fullname = user.Fullname,
+                            Fullname = u.RequestOwner,
                             StartTime = u.StartTime,
                             EndTime = u.EndTime,
                             Status = u.Status,
@@ -393,7 +395,7 @@ namespace tsuKeysAPIProject.Services
                 if(user != null)
                 {
                     var request = await _db.Requests.FirstOrDefaultAsync(r => r.Id == deleteRequestDTO.RequestId);
-                    if (user.Role == Roles.Teacher || user.Role == Roles.Student || user.Role == Roles.DeanTeacher)
+                    if (user.Role != Roles.User)
                     {
                         if (request != null)
                         {
