@@ -64,6 +64,10 @@ namespace tsuKeysAPIProject.Services
         public async Task<RegisterResponseDTO> Register(RegisterRequestDTO registerRequestDTO)
         {
             var IsTrueUser = _db.Users.FirstOrDefault(u => registerRequestDTO.Email == u.Email);
+            if (!EmailValidator.ValidateEmail(registerRequestDTO.Email))
+            {
+                throw new BadRequestException("Вы ввели неверный формат Email. Пример: user@exmaple.com");
+            }
             if (IsTrueUser != null)
             {
                 throw new BadRequestException("Данный Email уже используется");

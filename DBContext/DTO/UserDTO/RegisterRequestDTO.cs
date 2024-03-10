@@ -11,7 +11,6 @@ namespace tsuKeysAPIProject.DBContext.DTO.UserDTO
 
         public Gender Gender { get; set; }
 
-        [EmailAddress(ErrorMessage = "Неправильный формат email")]
         public string Email { get; set; }
         public string Password { get; set; }
     }
