@@ -63,13 +63,13 @@ namespace tsuKeysAPIProject.Controllers
             return Ok();
         }
 
-        [HttpGet("")]
+        [HttpGet("available")]
         [Authorize(Policy = "TokenNotInBlackList")]
         [ProducesResponseType(typeof(List<KeyInfoDTO>), 200)]
         [ProducesResponseType(typeof(Error), 400)]
         [ProducesResponseType(typeof(Error), 401)]
         [ProducesResponseType(typeof(Error), 500)]
-        public async Task<IActionResult> GetAllKeys([FromQuery] int? year, [FromQuery] int? month, [FromQuery] int? day, [FromQuery] int? timeId, [FromQuery][Required] KeyGettingStatus gettingStatus)
+        public async Task<IActionResult> GetAvailableKeys([FromQuery][Required] int year, [FromQuery][Required] int month, [FromQuery][Required] int day, [FromQuery][Required] int timeId)
         {
             string token = _tokenHelper.GetTokenFromHeader();
 
@@ -78,27 +78,37 @@ namespace tsuKeysAPIProject.Controllers
                 throw new UnauthorizedException("Данный пользователь не авторизован");
             }
 
-            if ((day == null || year == null || month == null) && !(day == null && year == null && month == null) ||
-                (day != null && year != null && month != null && timeId == null))
-            {
-                throw new BadRequestException("Неверные параметры даты");
-            }
-
             DateOnly dateOfRequest = new DateOnly(2010, 10, 10);
-
-            if (year != null && month != null && day != null && timeId != null )
-            {
                 try
                 {
-                    dateOfRequest = new DateOnly(year.Value, month.Value, day.Value);
+                    dateOfRequest = new DateOnly(year, month, day);
                 }
                 catch (ArgumentOutOfRangeException)
                 {
                     throw new BadRequestException("Неверный формат даты");
                 }
+            
+
+            var allKeys = await _keyService.GetAvailableKeys(dateOfRequest, timeId, token);
+            return Ok(allKeys);
+        }
+
+        [HttpGet("")]
+        [Authorize(Policy = "TokenNotInBlackList")]
+        [ProducesResponseType(typeof(List<KeyInfoDTO>), 200)]
+        [ProducesResponseType(typeof(Error), 400)]
+        [ProducesResponseType(typeof(Error), 401)]
+        [ProducesResponseType(typeof(Error), 500)]
+        public async Task<IActionResult> GetAllKeys([FromQuery] bool owned, [FromQuery] string classroomNumber)
+        {
+            string token = _tokenHelper.GetTokenFromHeader();
+
+            if (token == null)
+            {
+                throw new UnauthorizedException("Данный пользователь не авторизован");
             }
             
-            var allKeys = await _keyService.GetAllKeys(dateOfRequest, timeId, token, gettingStatus);
+            var allKeys = await _keyService.GetAllKeys(token, owned, classroomNumber);
             return Ok(allKeys);
         }
 
@@ -141,19 +151,19 @@ namespace tsuKeysAPIProject.Controllers
 
         [HttpGet("request/users")]
         [Authorize(Policy = "TokenNotInBlackList")]
-        [ProducesResponseType(typeof(List<UserKeysDTO>), 200)]
+        [ProducesResponseType(typeof(List<UsersForTransferDTO>), 200)]
         [ProducesResponseType(typeof(Error), 400)]
         [ProducesResponseType(typeof(Error), 401)]
         [ProducesResponseType(typeof(Error), 403)]
         [ProducesResponseType(typeof(Error), 500)]
-        public async Task<IActionResult> GetUsersForTransfer()
+        public async Task<IActionResult> GetUsersForTransfer([FromQuery] string fullName)
         {
             string token = _tokenHelper.GetTokenFromHeader();
             if (token == null)
             {
                 throw new UnauthorizedException("Данный пользователь не авторизован");
             }
-            var usersForTransfer = await _keyService.GetUsersForTransfer(token);
+            var usersForTransfer = await _keyService.GetUsersForTransfer(token, fullName);
             return Ok(usersForTransfer);
         }
 

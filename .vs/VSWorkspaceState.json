@@ -3,14 +3,13 @@
     "",
     "\\AdditionalServices",
     "\\AdditionalServices\\TokenHelpers",
+    "\\Controllers",
     "\\DBContext",
     "\\DBContext\\DTO",
-    "\\DBContext\\DTO\\KeyDTO",
-    "\\DBContext\\Models",
     "\\Services",
     "\\Services\\IServices",
     "\\Services\\IServices\\IKeyService"
   ],
-  "SelectedNode": "\\AdditionalServices\\TokenHelpers\\TokenInteraction.cs",
+  "SelectedNode": "\\tsuKeysAPIProject.sln",
   "PreviewInSolutionExplorer": false
 }

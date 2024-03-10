@@ -102,7 +102,7 @@ if (app.Environment.IsDevelopment())
 
 using var serviceScope = app.Services.CreateScope();
 var dbContext = serviceScope.ServiceProvider.GetService<AppDBContext>();
-dbContext?.Database.Migrate();
+//dbContext?.Database.Migrate();
 
 dbContext.TimeSlots.RemoveRange(dbContext.TimeSlots);
 dbContext.TimeSlots.AddRange(
