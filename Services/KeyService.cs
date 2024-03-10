@@ -1,6 +1,7 @@
 ﻿
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using tsuKeysAPIProject.AdditionalServices.Exceptions;
 using tsuKeysAPIProject.AdditionalServices.TokenHelpers;
@@ -136,47 +137,40 @@ namespace tsuKeysAPIProject.Services
 
         }
 
-        public async Task<List<KeyInfoDTO>> GetAllKeys(DateOnly? dateOfRequest, int? timeId, string token, KeyGettingStatus gettingStatus)
+        public async Task<List<KeyInfoDTO>> GetAvailableKeys(DateOnly dateOfRequest, int timeId, string token)
         {
-
-            DateTime utcNow = DateTime.UtcNow;
-            DateTime nowTomsk = utcNow.AddHours(7);
-            TimeOnly timeOnly = new TimeOnly(nowTomsk.Hour, nowTomsk.Minute, nowTomsk.Second);
-
-            DateOnly dateOnly = DateOnly.FromDateTime(nowTomsk);
-
-            var endTime = await _db.TimeSlots
-                .Where(u => u.SlotNumber == timeId)
-                .Select(u => u.EndTime)
-                .FirstOrDefaultAsync();
-
-            Console.WriteLine(dateOfRequest < dateOnly);
-            Console.WriteLine(timeOnly > endTime && dateOfRequest == dateOnly);
-
-            if ((dateOfRequest < dateOnly || (timeOnly > endTime && dateOfRequest == dateOnly)) && gettingStatus == KeyGettingStatus.AvailableKeys)
-            {
-                throw new BadRequestException("Нельзя сделать заявку в прошлое");
-            }
-
             var userEmail = _tokenHelper.GetUserEmailFromToken(token);
-
-            var userId = await _db.Users
-                .Where(u => u.Email == userEmail)
-                .Select(u => u.Id)
-                .FirstOrDefaultAsync();
-
             var userRole = await _userInfoHelper.GetUserRole(userEmail);
 
-            if (userRole != Roles.User)
-            {
+
+            if ((userRole == Roles.Student || userRole == Roles.Teacher || userRole == Roles.DeanTeacher))
+                {
+
+                DateTime utcNow = DateTime.UtcNow;
+                DateTime nowTomsk = utcNow.AddHours(7);
+                TimeOnly timeOnly = new TimeOnly(nowTomsk.Hour, nowTomsk.Minute, nowTomsk.Second);
+                DateOnly dateOnly = DateOnly.FromDateTime(nowTomsk);
+
+                var endTime = await _db.TimeSlots
+                    .Where(u => u.SlotNumber == timeId)
+                    .Select(u => u.EndTime)
+                    .FirstOrDefaultAsync();
+
+                if ((dateOfRequest < dateOnly || (timeOnly > endTime && dateOfRequest == dateOnly)))
+                {
+                    throw new BadRequestException("Нельзя сделать заявку в прошлое");
+                }
+
+                var userId = await _db.Users
+                    .Where(u => u.Email == userEmail)
+                    .Select(u => u.Id)
+                    .FirstOrDefaultAsync();
+                
                 var allKeys = _db.Keys.ToList();
 
-                var keysForRequest = new List<KeyInfoDTO>();
+                    var keysForRequest = new List<KeyInfoDTO>();
 
-                allKeys = allKeys.OrderBy(u => u.ClassroomNumber).ToList();
-
-                if ((userRole == Roles.Student || userRole == Roles.Teacher || userRole == Roles.DeanTeacher) && gettingStatus == KeyGettingStatus.AvailableKeys)
-                {
+                    allKeys = allKeys.OrderBy(u => u.ClassroomNumber).ToList();
 
                     var timeExist = await _db.TimeSlots.AnyAsync(u => u.SlotNumber == timeId);
 
@@ -203,28 +197,63 @@ namespace tsuKeysAPIProject.Services
                             keysForRequest.Add(keyInfoDTO);
                         }
                     }
-                    return keysForRequest;
-                }
-                else if ((userRole == Roles.Dean || userRole == Roles.Administrator || userRole == Roles.DeanTeacher) && gettingStatus == KeyGettingStatus.AllKeys)
-                {
-                    foreach (var key in allKeys)
-                    {
-                        var keyInfo = new KeyInfoDTO
-                        {
-                            ClassroomNumber = key.ClassroomNumber,
-                            Owner = key.Owner
-                        };
-                        keysForRequest.Add(keyInfo);
-                    }
 
-                    return keysForRequest;
+                List<KeyInfoDTO> sortedKeys = keysForRequest.OrderBy(x =>
+                {
+                    string numStr = new string(x.ClassroomNumber.TakeWhile(char.IsDigit).ToArray());
+                    return int.Parse(numStr);
+                }).ToList();
+
+                return sortedKeys;
                 }
-                throw new ForbiddenException("Роль пользователя не подходит");
+                else
+                {
+                    throw new ForbiddenException("Ваша роль не подходит");
+                }
             }
-            else
+
+        public async Task<List<KeyInfoDTO>> GetAllKeys(string token, bool owned, string classroomNumber)
+        {
+
+            var userEmail = _tokenHelper.GetUserEmailFromToken(token);
+
+            var userRole = await _userInfoHelper.GetUserRole(userEmail);
+
+            var allKeys = _db.Keys.AsQueryable();
+
+            var keysForRequest = new List<KeyInfoDTO>();
+
+            if ((userRole == Roles.Dean || userRole == Roles.Administrator || userRole == Roles.DeanTeacher))
             {
-                throw new ForbiddenException("для отображения ключей нужна роль выше User");
+                if (!string.IsNullOrEmpty(classroomNumber))
+                {
+                    allKeys = allKeys.Where(key => key.ClassroomNumber.ToLower().Contains(classroomNumber.ToLower()));
+                }
+
+                if (owned)
+                {
+                    allKeys = allKeys.Where(key => key.Owner != "Dean");
+                }
+
+                foreach (var key in allKeys)
+                {
+                    var keyInfo = new KeyInfoDTO
+                    {
+                        ClassroomNumber = key.ClassroomNumber,
+                        Owner = key.Owner
+                    };
+                    keysForRequest.Add(keyInfo);
+                }
+
+                List<KeyInfoDTO> sortedKeys = keysForRequest.OrderBy(x =>
+                {
+                    string numStr = new string(x.ClassroomNumber.TakeWhile(char.IsDigit).ToArray());
+                    return int.Parse(numStr);
+                }).ToList();
+
+                return sortedKeys;
             }
+            throw new ForbiddenException("Роль пользователя не подходит");
         }
 
         public async Task SendKeyRequest(KeyRequestsDTO keyRequestDTO, string token)
