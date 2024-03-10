@@ -366,11 +366,8 @@ namespace tsuKeysAPIProject.Services
 
                 if (userStatus == RequestUserStatus.Owner)
                 {
-
                     var keyRecipient = await _db.Users.FirstOrDefaultAsync(u => u.Email == request.KeyRecipient);
-                    requestDto.KeyRecipientFullName = request.KeyRecipient == "Dean" ? "Деканат" : keyRecipient?.Fullname;
-                    
-                    
+                    requestDto.KeyRecipientFullName = request.KeyRecipient == "Dean" ? "Деканат" : keyRecipient?.Fullname; 
                 }
                 else if (userStatus == RequestUserStatus.Recipient)
                 {
@@ -378,6 +375,46 @@ namespace tsuKeysAPIProject.Services
                     requestDto.KeyOwnerFullName = keyOwner?.Fullname;
                 }
 
+                requestsDto.Add(requestDto);
+            }
+
+            return requestsDto;
+        }
+
+        public async Task<List<KeyRequestResponseDTO>> GetDeanRequests(string token)
+        {
+            var userEmail = _tokenHelper.GetUserEmailFromToken(token);
+            var userRole = await _userInfoHelper.GetUserRole(userEmail);
+
+            if (userRole != Roles.Dean && userRole != Roles.DeanTeacher)
+            {
+                throw new ForbiddenException("У вас нет прав для принятия ключа");
+            }
+
+            List<KeyRequest> userRequests;
+            
+                userRequests = await _db.KeyRequest
+                    .Where(u => u.KeyRecipient == "Dean"
+                    && (u.Status == KeyRequestStatus.Pending || u.Status == KeyRequestStatus.Approved || u.Status == KeyRequestStatus.Rejected))
+                    .ToListAsync();
+            
+            var requestsDto = new List<KeyRequestResponseDTO>();
+            foreach (var request in userRequests)
+            {
+                var requestDto = new KeyRequestResponseDTO
+                {
+                    RequestId = request.Id,
+                    ClassroomNumber = request.ClassroomNumber,
+                    KeyRecipientFullName = "Деканат",
+                    KeyRecipientEmail = request.KeyRecipient,
+                    KeyOwnerEmail = request.KeyOwner,
+                    Status = request.Status,
+                    EndOfRequest = request.EndOfRequest
+                };
+
+                    var keyOwner = await _db.Users.FirstOrDefaultAsync(u => u.Email == request.KeyOwner);
+                    requestDto.KeyOwnerFullName = keyOwner?.Fullname;
+            
                 requestsDto.Add(requestDto);
             }
 

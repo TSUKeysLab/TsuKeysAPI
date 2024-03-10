@@ -10,6 +10,6 @@
     "\\Services\\IServices",
     "\\Services\\IServices\\IKeyService"
   ],
-  "SelectedNode": "\\tsuKeysAPIProject.sln",
+  "SelectedNode": "\\Services\\KeyService.cs",
   "PreviewInSolutionExplorer": false
 }

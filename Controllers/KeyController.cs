@@ -129,7 +129,24 @@ namespace tsuKeysAPIProject.Controllers
             var keyRequests = await _keyService.GetAllRequests(userStatus, token);
             return Ok(keyRequests);
         }
-        
+        [HttpGet("requests/dean")]
+        [Authorize(Policy = "TokenNotInBlackList")]
+        [ProducesResponseType(typeof(List<KeyRequestResponseDTO>), 200)]
+        [ProducesResponseType(typeof(Error), 400)]
+        [ProducesResponseType(typeof(Error), 401)]
+        [ProducesResponseType(typeof(Error), 500)]
+        public async Task<IActionResult> GetDeanRequests()
+        {
+            string token = _tokenHelper.GetTokenFromHeader();
+            if (token == null)
+            {
+                throw new UnauthorizedException("Данный пользователь не авторизован");
+            }
+
+            var keyRequests = await _keyService.GetDeanRequests(token);
+            return Ok(keyRequests);
+        }
+
         [HttpGet("owned")]
         [Authorize(Policy = "TokenNotInBlackList")]
         [ProducesResponseType(typeof(List<UserKeysDTO>), 200)]
