@@ -43,7 +43,12 @@ namespace tsuKeysAPIProject.Services
                 DateTime utcNowTomsk = utcNow.AddHours(7);
                 TimeOnly currentTime = new TimeOnly(utcNowTomsk.Hour, utcNowTomsk.Minute, utcNowTomsk.Second);
                 DateOnly currentDay = new DateOnly(utcNowTomsk.Year, utcNowTomsk.Month, utcNowTomsk.Day);
-
+                DateOnly maxCreationDate = currentDay.AddYears(1);
+                if(createRequestDTO.DateOfBooking > maxCreationDate)
+                {
+                    throw new BadRequestException("Вы можете создать заявку с датой, которая будет больше сегодняшней на год! ");
+                }
+                
                 if (requestTime == null)
                 {
                     throw new NotFoundException("Выбранное вами время не существует");
