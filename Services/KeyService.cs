@@ -1,5 +1,7 @@
 ﻿
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text.RegularExpressions;
 using tsuKeysAPIProject.AdditionalServices.Exceptions;
 using tsuKeysAPIProject.AdditionalServices.TokenHelpers;
 using tsuKeysAPIProject.AdditionalServices.UserInfoHelper;
@@ -8,6 +10,7 @@ using tsuKeysAPIProject.DBContext.DTO.KeyDTO;
 using tsuKeysAPIProject.DBContext.DTO.RolesDTO;
 using tsuKeysAPIProject.DBContext.Models;
 using tsuKeysAPIProject.DBContext.Models.Enums;
+using tsuKeysAPIProject.Migrations;
 using tsuKeysAPIProject.Services.IServices.IKeyService;
 
 namespace tsuKeysAPIProject.Services
@@ -31,6 +34,13 @@ namespace tsuKeysAPIProject.Services
             var userEmail = _tokenHelper.GetUserEmailFromToken(token);
 
             var userRole = await _userInfoHelper.GetUserRole(userEmail);
+
+            string pattern = @"^\d{1,4}[a-zA-Z]{0,2}$";
+            bool isMatch = Regex.IsMatch(createKeyDTO.ClassroomNumber, pattern);
+            if (!isMatch)
+            {
+                throw new BadRequestException("Номер ключа должен состоять из 1-4 цифр и 0-2 букв");
+            }
 
             if (userRole != Roles.Dean || userRole != Roles.Administrator)
             {
@@ -327,8 +337,11 @@ namespace tsuKeysAPIProject.Services
 
                 if (userStatus == RequestUserStatus.Owner)
                 {
+
                     var keyRecipient = await _db.Users.FirstOrDefaultAsync(u => u.Email == request.KeyRecipient);
-                    requestDto.KeyRecipientFullName = keyRecipient?.Fullname;
+                    requestDto.KeyRecipientFullName = request.KeyRecipient == "Dean" ? "Деканат" : keyRecipient?.Fullname;
+                    
+                    
                 }
                 else if (userStatus == RequestUserStatus.Recipient)
                 {
@@ -525,7 +538,8 @@ namespace tsuKeysAPIProject.Services
             string userEmail = _tokenHelper.GetUserEmailFromToken(token);
             var userRole = await _userInfoHelper.GetUserRole(userEmail);
             var allUsers = _db.Users
-                .Where(u => u.Email != userEmail)
+                .Where(u => u.Email != userEmail
+                    && u.Role != Roles.Administrator && u.Role != Roles.User && u.Role != Roles.Dean)
                 .AsQueryable();
 
             if (userRole != Roles.User && userRole != Roles.Dean && userRole != Roles.Administrator)
