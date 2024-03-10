@@ -17,8 +17,6 @@ namespace tsuKeysAPIProject.DBContext.Models
         public DateOnly BirthDate { get; set; }
 
         public Gender Gender { get; set; }
-
-        [EmailAddress(ErrorMessage = "Неправильный формат email")]
         public string Email { get; set; }
 
         public Roles Role { get; set; }
