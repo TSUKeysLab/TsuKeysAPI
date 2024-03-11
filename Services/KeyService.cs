@@ -549,7 +549,7 @@ namespace tsuKeysAPIProject.Services
                 throw new NotFoundException("Такой заявки не существует");
             }
 
-            if (request.Status != KeyRequestStatus.Ended && request.Status != KeyRequestStatus.Rejected)
+            if (request.Status != KeyRequestStatus.Ended)
                 {
                     if (request.KeyOwner == userEmail)
                     {
