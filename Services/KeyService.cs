@@ -386,7 +386,7 @@ namespace tsuKeysAPIProject.Services
             var userEmail = _tokenHelper.GetUserEmailFromToken(token);
             var userRole = await _userInfoHelper.GetUserRole(userEmail);
 
-            if (userRole != Roles.Dean && userRole != Roles.DeanTeacher)
+            if (userRole != Roles.Dean && userRole != Roles.DeanTeacher && userRole != Roles.Administrator)
             {
                 throw new ForbiddenException("У вас нет прав для принятия ключа");
             }
@@ -444,9 +444,9 @@ namespace tsuKeysAPIProject.Services
             {
                 throw new NotFoundException("Такого ключа не существует");
             }
-                if (userRole != Roles.User && userRole != Roles.Administrator)
+                if (userRole != Roles.User)
                 {
-                    if (request.KeyRecipient == "Dean" && (userRole == Roles.Dean || userRole == Roles.DeanTeacher))
+                    if (request.KeyRecipient == "Dean" && (userRole == Roles.Dean || userRole == Roles.DeanTeacher || userRole == Roles.Administrator))
                     {
 
                         var allUsersRequest = await _db.KeyRequest
