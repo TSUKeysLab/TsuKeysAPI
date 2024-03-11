@@ -253,7 +253,7 @@ namespace tsuKeysAPIProject.Services
                         page = 1;
                     }
 
-                    int sizeOfPage = 5;
+                    int sizeOfPage = allRequests.Count();
                     var countOfPages = (int)Math.Ceiling((double)allRequests.Count() / sizeOfPage);
                     if (page <= countOfPages)
                     {
