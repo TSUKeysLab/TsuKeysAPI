@@ -80,6 +80,14 @@ namespace tsuKeysAPIProject.Services
             {
                 throw new BadRequestException("Пароль не соответсвует требованиям, должна быть минимум одна заглавная буква, семь обычных букв, минимум одна цифра и один спец.символ");
             }
+            if (!fullNameValidator.ValidateFullName(registerRequestDTO.Name))
+            {
+                throw new BadRequestException("Имя должно быть от 2 до 30 символов");
+            }
+            if (!fullNameValidator.ValidateFullName(registerRequestDTO.Lastname))
+            {
+                throw new BadRequestException("Фамилия должна быть от 2 до 30 символов");
+            }
             User user = new User()
             {
                 Name = registerRequestDTO.Name,

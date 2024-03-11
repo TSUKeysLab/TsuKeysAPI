@@ -3,13 +3,10 @@
     "",
     "\\AdditionalServices",
     "\\AdditionalServices\\TokenHelpers",
+    "\\AdditionalServices\\Validators",
     "\\Controllers",
-    "\\DBContext",
-    "\\DBContext\\DTO",
-    "\\Services",
-    "\\Services\\IServices",
-    "\\Services\\IServices\\IKeyService"
+    "\\Services"
   ],
-  "SelectedNode": "\\Services\\KeyService.cs",
+  "SelectedNode": "\\Controllers\\KeyController.cs",
   "PreviewInSolutionExplorer": false
 }
